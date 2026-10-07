@@ -1,22 +1,15 @@
+
 import json
-global files
 files = {}
+
 def load_files_startup():
         global files
-        # Load calendar data
 
-        with open("Days.json", "r",encoding="utf-8") as f:
-            files["Days"] = json.load(f)
+        with open("Data.json", "r",encoding="utf-8") as f:
+            files["Data"] = json.load(f)
 
-        with open("Events.json", "r",encoding="utf-8") as f:
-            files["Events"] = json.load(f)
-
-        with open("Repeats.json", "r",encoding="utf-8") as f:
-            files["Repeats"] = json.load(f)
-        # Load Module data
-
-        with open("Comprehension.json", "r",encoding="utf-8") as f:
-            files["Comprehension"] = json.load(f)
+        with open("Schedule.json", "r",encoding="utf-8") as f:
+            files["Schedule "] = json.load(f)
 
 def load_file(filename):
     global files
