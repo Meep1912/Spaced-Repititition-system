@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+import time
 
 def open_add_card_menu():
     draw_add_card_menu()
@@ -86,15 +87,16 @@ def draw_elements(add_card_menu):
 
     # --- DONE BUTTON ---
 
+    Entries = Type_Entry,Decks_Entry,Front_Field_Entry,Back_Field_Entry
     Done = Button(add_card_menu,
                   text="Done",
-                  command=print("x"),
+                  command=lambda: done_button(Entries),
                   relief="flat",
                   bg="white",
                   border=1,
                   )
     
-    # -- PLACING SHIT --
+    # -- PLACING --
     Title.place(x=10,y=10)
 
     Type_Text.place(x=15,y=50)
@@ -110,6 +112,34 @@ def draw_elements(add_card_menu):
     Back_Field_Entry.place(x=25,y=300)
 
     Done.place(x=25,y=410)
+
+def done_button(Entries):
+
+    def get_values(Entries):
+        values = []
+        for Entry in Entries:
+            try:
+                values.append(Entry.get("1.0",END))
+            except:
+                values.append(Entry.get())
+        return(values)
+
+    def generate_id():
+        id = time.time_ns()
+        return id
+
+    values = get_values(Entries)
+    id = generate_id()
+
+    def Compare_Card_ID():
+        pass
+    
+    def write_to_file():
+        pass
+
+
+
+
 
 # TO DO -
 

@@ -26,64 +26,51 @@ mainwindow.config(bg="white")
 
 
 def decks_window_buttons():
-    home_file_button = Button(mainwindow,
-                        text="file",
-                        command=filebuttonpressed,
-                        underline=0,
-                        bg="white",
-                        relief="flat",
-                        font=(12))
+    menubar = Menu(mainwindow)
 
-    home_edit_button = Button(mainwindow,
-                        text="edit",
-                        command=filebuttonpressed,
-                        underline=0,
-                        bg="white",
-                        relief="flat",
-                        font=(12))
+    # --- File ---
+    file = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="File",menu=file)
 
+    file.add_command(label="Import",command=None)
+    file.add_command(label="Export",command=None)
+                            
+    # --- Edit ---
 
-    home_help_button = Button(mainwindow,
-                        text="help",
-                        command=filebuttonpressed,
-                        underline=0,
-                        bg="white",
-                        relief="flat",
-                        font=(12))
+    edit = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Edit",menu=edit)
 
+    edit.add_command(label="Edit",command=None)
 
-    home_decks_button = Button(mainwindow,
-                        text="decks",
-                        command=0,
-                        underline=0,
-                        bg="white",
-                        relief="flat",
-                        font=(12))
+    # --- Help ---
 
+    help = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Help",menu=help)
 
-    home_add_button = Button(mainwindow,
-                        text="add",
-                        command=lambda: Add_Card_View.open_add_card_menu(),
-                        underline=0,
-                        bg="white",
-                        relief="flat",
-                        font=(12))
+    help.add_command(label="Help",command=None)
 
+    # --- Decks --- 
 
-    home_view_button = Button(mainwindow,
-                        text="view",
-                        command=lambda: Card_View.open_card_view_menu(),
-                        underline=0,
-                        bg="white",
-                        relief="flat",
-                        font=(12))
+    decks = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Decks",menu=decks)
 
-    home_file_button.pack(anchor="n",side="left")
-    home_view_button.pack(anchor="n",side="left")
-    home_edit_button.pack(anchor="n",side="left")
-    home_help_button.pack(anchor="n",side="left")
-    home_decks_button.pack(anchor="n",side="left")
-    home_add_button.pack(anchor="n",side="left")
+    decks.add_command(label="Decks",command=None)
+
+    # --- Add --- 
+
+    add  = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Add",menu=add)
+
+    add.add_command(label="Add",command=lambda: Add_Card_View.open_add_card_menu())
+
+    # ---View --- 
+
+    view = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="View",menu=view)
+
+    view.add_command(label="View",command=lambda: Card_View.open_card_view_menu())
+
+    mainwindow.config(menu=menubar)
     
 decks_window_buttons()
 mainwindow.mainloop()
