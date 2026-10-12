@@ -8,7 +8,7 @@ def open_add_card_menu():
 # main window settings 
 def draw_add_card_menu():
     add_card_menu = Toplevel()
-    add_card_menu.title("Project")
+    add_card_menu.title("Add Card")
     add_card_menu.geometry("600x500")
     add_card_menu.config(bg="white")
 
@@ -67,7 +67,6 @@ def draw_elements(add_card_menu):
                               height=4,
                               width=50,
                               bg="white",
-                              relief="flat",
                               font=(12)
                               )
 
@@ -81,7 +80,6 @@ def draw_elements(add_card_menu):
                               height=4,
                               width=50,
                               bg="white",
-                              relief="flat",
                               font=(12)
                               )
 
@@ -114,7 +112,6 @@ def draw_elements(add_card_menu):
     Done.place(x=25,y=410)
 
 def done_button(Entries):
-
     def get_values(Entries):
         values = []
         for Entry in Entries:
@@ -133,10 +130,8 @@ def done_button(Entries):
 
     def Compare_Card_ID():
         pass
-    
-    def write_to_file():
-        pass
 
+    # write to file
 
 
 
