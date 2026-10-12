@@ -1,0 +1,21 @@
+Basics of FSRS:
+
+The main goal of a spaced repetition algorithm is to calculate the optimal intervals between reviews. 
+
+To measure this: does the chance of remembering a card match the rate the user wants to remember?
+
+FSRS springs from the DHP model which is based on the "Three Component Model of Memory". The model asserts that three variables are sufficient to describe the status of a unitary memory in the human brain. 
+
+the idea of FSRS comes from the idea that there are three components needed to model memory of a unitary item: 
+
+Retrievability (R) : the probability that the person can successfully recall a particular piece of information at a given moment. 
+
+Stability (S) : The time in days, required for R to decrease from 100% to 90% for example S = 365 means that an entire year will pass before the probability of recalling a particular card drops to 90%.
+
+Difficulty (D) : The inherent complexity of a particular information. It represents how difficult it is to increase memory stability after a review. 
+
+Rate of change of the variables:
+
+The value of R changes daily, while D and S change after a card has been reviewed.
+
+In order to calculate a particular users DSR values, FSRS analyses the users review history and uses machine learning to calculate parameters that provide the best fit to the review history. For example in FSRS-6 uses 21 parameters which make up the D S and R values.
