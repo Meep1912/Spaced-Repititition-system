@@ -13,14 +13,13 @@ def toolsbuttonpressed():
     pass
 def helpbuttonpressed():
     pass
-
 def decksbuttonpressed():
     pass
 
 
 mainwindow = Tk()
 canvas = Canvas()
-mainwindow.title("Project")
+mainwindow.title("S.R.S")
 mainwindow.geometry("600x600")
 mainwindow.config(bg="white")
 
