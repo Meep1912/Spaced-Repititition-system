@@ -1,6 +1,7 @@
 from tkinter import *
 import Card_View 
 import Add_Card_View
+import Data
 
 # button functions
 def filebuttonpressed():
@@ -22,6 +23,8 @@ canvas = Canvas()
 mainwindow.title("S.R.S")
 mainwindow.geometry("600x600")
 mainwindow.config(bg="white")
+
+Data.load_files_startup()
 
 
 def decks_window_buttons():

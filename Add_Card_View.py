@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 import time
+import Data
 
 def open_add_card_menu():
     draw_add_card_menu()
@@ -38,8 +39,10 @@ def draw_elements(add_card_menu):
         "Card Type 2",
         "Card Type 3",
     ]
+
     Type_Entry = ttk.Combobox(add_card_menu,
-            values=Card_Types
+            state="readonly",
+            values=Card_Types,
     )
 
     # --- DECK SELECTION ---         
@@ -48,15 +51,17 @@ def draw_elements(add_card_menu):
                         bg="white",
                         relief="flat",
                         font=(12))
-    Decks = [
-        "Deck 1",
-        "Deck 2",
-        "Deck 3",
-    ]
-    Decks_Entry = ttk.Combobox(add_card_menu,
-            values=Decks
-    )
+    Decks_from_file = Data.get_file_data("decks")
+    
+    Deck_Selection = []
 
+    for Deck in Decks_from_file:
+        Deck_Selection.append(Deck)
+
+    Decks_Entry = ttk.Combobox(add_card_menu,
+                               state="readonly",
+                               values=Deck_Selection)
+    
     # --- FRONT FIELD ENTRY BOX ---
     Front_Field_Text = Label(add_card_menu,
                                 text="Front: ",
@@ -85,11 +90,10 @@ def draw_elements(add_card_menu):
 
     # --- DONE BUTTON ---
 
-    Entries = Type_Entry,Decks_Entry,Front_Field_Entry,Back_Field_Entry
+    Entries = Front_Field_Entry,Back_Field_Entry,Type_Entry,Decks_Entry
     Done = Button(add_card_menu,
-                  text="Done",
-                  command=lambda: done_button(Entries),
-                  relief="flat",
+                  text="Add",
+                  command=lambda: done_button(Entries,Done,add_card_menu),
                   bg="white",
                   border=1,
                   )
@@ -111,13 +115,13 @@ def draw_elements(add_card_menu):
 
     Done.place(x=25,y=410)
 
-def done_button(Entries):
-    # get 
+def done_button(Entries,Done,add_card_menu):
+
     def get_values(Entries):
         values = []
         for Entry in Entries:
             try:
-                values.append(Entry.get("1.0",END))
+                values.append(Entry.get("1.0","end-1c"))
             except:
                 values.append(Entry.get())
         return(values)
@@ -130,24 +134,64 @@ def done_button(Entries):
         return 0
     
     values = get_values(Entries)
+
+    def reset_done(Done):
+        Done.config(text="Add")
+
+    def card_added(Done):
+        Done.config(text="Card Added")
+        add_card_menu.after(500,reset_done,Done)
+
+    for value in values:
+        if not value.strip():
+            Done.config(text="Empty Fields")
+            add_card_menu.after(500,reset_done,Done)
+            return 0
+        else:
+            add_card_menu.after(500,card_added,Done)
+
+
+    # break values up into variables
+
+    front = values[0]
+    Back = values[1]
+    Deck = values[3]
+    Card_Type = values[2]
+
     key = generate_ID()
-    while compare_ID(key) == 0:
-        key generate_ID()
-        
-    New_Card_Entry = { "ID":key,
-                       "Front":front,
-                       "Back":Back,
-                       "Deck":Deck,
-                       "Card_Type":Card_Type}
-        
+
+    # compare
+    # generates upto 100 keys if there are colisions 
+    i = 0
+    while i < 100:
+        if key in Data.get_file_data("card_data"):
+            key = generate_ID()
+        else:
+            i = 100
+        i += 1
     
+
+        
+    New_Card_Entry = {
+        key:{"Front":front,
+             "Back":Back,
+             "Card_Type":Card_Type}}
+
+    New_Schedule_Entry = {
+        key:{"Due":0,
+             "Interval":"",
+             "Ease":0.0,
+             "Repeats":0}}
+
     
-    values = get_values(Entries)
-    id = generate_id()
 
-
-
+    # write to card_data file
+    Data.save_file("card_data",New_Card_Entry)
+    # add an blank entry to schedule with matching id
+    Data.save_file("schedule",New_Schedule_Entry)
     # write to file
+    Data.append_decks_file(Deck,key)
+    print("hi!")
 
 
 
