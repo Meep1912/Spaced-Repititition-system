@@ -189,7 +189,7 @@ def draw_deck_overveiw(deck):
                                     height=5,
                                     width=30,
                                     text="REVIEW ! !",
-                                    command=lambda: start_review(queue_of_cards,current_queue_item),
+                                    command=lambda: Review(queue_of_cards).show_card(),
                                     bg="white")
     deck_label = Label(mainwindow,
                        text=deck,
@@ -213,7 +213,6 @@ def draw_deck_options(deck):
     card_view.title((deck + " options"))
     card_view.geometry("600x400")
 
-
 def get_card_data(current_card_being_reviewed):
         card_data = Data.get_file_data("card_data")[current_card_being_reviewed]
         front = card_data["Front"]
@@ -221,47 +220,123 @@ def get_card_data(current_card_being_reviewed):
         type = card_data["Card_Type"]
         return front,back,type
 
-def start_review(queue_of_cards,current_queue_item):
+class Review:
+    def __init__(self, queue):
+        self.queue = queue
+        self.index = 0
 
-    # get current card 
-    current_card_being_reviewed = queue_of_cards[current_queue_item]
-    # -------get the card data of the current card being reviewed--------
-    front,back,type = get_card_data(current_card_being_reviewed)
+    
+    def card(self):
+        return self.queue[self.index]
+    card = property(card)
 
+    def show_card(self):
+        if self.index >= len(self.queue):
+            self.finish()
+            return
+        self.front, self.back, self.type = get_card_data(self.card)
+        self.draw_front()
 
-    #----------- Draw the front of the card ----------------
+    def draw_front(self):
+        clear_main_frame()
 
-    draw_front(queue_of_cards,current_card_being_reviewed,current_queue_item,front,back)
+        #---------- Load elements ----------------
 
-def draw_front(queue_of_cards,current_card_being_reviewed,current_queue_item,front,back):
+        front_field = Label(mainwindow, 
+              text=self.front, 
+              font=(100), 
+              background="white")
         
+        back_field = Button(mainwindow,
+                text="Flip!!!", 
+                command=self.draw_back)
+        
+        #---------- Draw elements ----------------
+        front_field.place(x=100, y=100)
+        back_field.place(x=300, y=550)
+
+    def draw_back(self):
         clear_main_frame()
-        front_field = Label(mainwindow,text=front,font=(100),background="white")
-        flip_button = Button(mainwindow,
-                             text="Flip!!!",
-                             command=lambda:draw_back(current_card_being_reviewed,back))
-        front_field.place(x=100,y=100)
-        flip_button.place(x=300,y=550)
 
-def draw_back(queue_of_cards,current_card_being_reviewed,current_queue_item,back):
+        #---------- Load elements ----------------
 
+        back_field = Label(mainwindow,
+                           text=self.back, 
+                           font=(100), 
+                           background="white")
+
+        pass_btn = Button(mainwindow, 
+                          text="Pass", 
+                          width=7, 
+                          height=3,
+                          command=lambda: self.rate(1))
+        
+        fail_btn = Button(mainwindow, 
+                          text="Fail", 
+                          width=7, 
+                          height=3,
+                          command=lambda: self.rate(0))
+
+        #---------- Draw elements ----------------
+
+        back_field.place(x=100, y=100)
+        pass_btn.place(x=250, y=550)
+        fail_btn.place(x=350, y=550)
+
+    def rate(self, rating):
+
+        all_schedule_data = Data.get_file_data("schedule")
+        card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
+
+        # algorithm which adjusts schedule based on rating
+
+        #input interval, ease, repeats
+
+        Interval = card_schedule_data["Interval"]
+        Ease = card_schedule_data["Ease"]
+        Repeats = card_schedule_data["Repeats"]
+
+        # Ease is the difficulty of the card
+        # Interval is days since last review
+        # Repeats is the total amount of times the card has been seen
+
+        if rating == 0:
+            New_Ease -= 0.2
+
+        if rating == 1:
+            New_Ease += 0.2
+
+        Review_again_in_this_many_days = Ease * Interval
+        
+        New_Repeats += 1
+
+        new_schedule_data = {
+            "Due":
+            "Interval":New_Interval,
+            "Ease":New_Ease,
+            "Repeats":New_Repeats
+        }
+
+        all_schedule_data[str(self.card)]
+        #output due
+
+
+
+
+
+
+        #----------------------------------------------------
+
+
+
+
+        self.index += 1
+        self.show_card()
+
+    def finish(self):
         clear_main_frame()
-        back_field_text = Label(mainwindow,text=back,font=(100),background="white")
-        pass_button = Button(mainwindow,text="Pass",width=7,height=3,command=lambda: rate_card(current_card_being_reviewed,1))  
-        fail_button = Button(mainwindow,text="Fail",width=7,height=3,command=lambda: rate_card(current_card_being_reviewed,0))
+        # draw "review complete" screen
 
-        back_field_text.place(x=100,y=100)
-        pass_button.place(x=250,y=550)
-        fail_button.place(x=350,y=550)
-
-def rate_card(queue_of_cards,current_card_being_reviewed,current_queue_item,rating):
-
-    Data.get_file_data("schedule")[current_card_being_reviewed]
-
-    # algorithm which ajusts schedule based on rating
-
-    current_card_being_reviewed += 1
-    start_review(queue_of_cards,current_queue_item)
 
 
 

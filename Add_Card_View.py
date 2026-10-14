@@ -158,7 +158,7 @@ def done_button(Entries,Done,add_card_menu):
     Deck = values[3]
     Card_Type = values[2]
 
-    key = generate_ID()
+    key = str(generate_ID())
 
     # compare
     # generates upto 100 keys if there are colisions 
