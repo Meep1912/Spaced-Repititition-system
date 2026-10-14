@@ -4,30 +4,16 @@ import Add_Card_View
 import Data
 from datetime import date
 
-# button functions
-def filebuttonpressed():
-    pass
-def editbuttonpressed():
-    pass
-def veiwbuttonpressed():
-    pass
-def toolsbuttonpressed():
-    pass
-def helpbuttonpressed():
-    pass
-def decksbuttonpressed():
-    clear_main_frame()
-    decks_list_elements()
 
 
+# ------------- Window configiration -------------------
 mainwindow = Tk()
 canvas = Canvas()
 mainwindow.title("S.R.S")
 mainwindow.geometry("600x600")
 mainwindow.config(bg="white")
 
-Data.load_files_startup()
-
+# ----------------- Functions ----------------
 
 def decks_window_buttons():
     menubar = Menu(mainwindow)
@@ -76,6 +62,22 @@ def decks_window_buttons():
 
     mainwindow.config(menu=menubar)
 
+# taskbar buttons
+
+def filebuttonpressed():
+    pass
+def editbuttonpressed():
+    pass
+def veiwbuttonpressed():
+    pass
+def toolsbuttonpressed():
+    pass
+def helpbuttonpressed():
+    pass
+def decksbuttonpressed():
+    clear_main_frame()
+    decks_list_elements()
+
 def decks_list_elements():
     deck_list_from_file = Data.get_file_data("decks")
     
@@ -117,56 +119,52 @@ def clear_main_frame():
 
 def draw_deck_overveiw(deck):
 
-    clear_main_frame()
+    #----------- Functions -------------------
+    def get_schedule_data(deck_data):
+        cards_schedule_data= {}
+        for card in deck_data:
+            schedule_data = Data.get_file_data("schedule")[str(card)]
+            cards_schedule_data[card] = schedule_data
+        return cards_schedule_data
+    def pick_new_cards(cards_schedule_data):
+        brand_new_cards = []
+        daily_new_card_limit = 10
 
-    start_review_button = Button(mainwindow,
-                                 height=5,
-                                 width=30,
-                                 text="REVIEW ! !",
-                                 bg="white")
+        count = 0
+        for card_id, card_schedule in cards_schedule_data.items():
+            if count >= daily_new_card_limit:
+                break
+            if card_schedule["Due"] == "0":
+                brand_new_cards.append(card_id)
+        return brand_new_cards
+    def find_due_today_or_earlier(cards_schedule_data):
 
-    deck_label = Label(mainwindow,
-                       text=deck,
-                       font=(500),
-                       height=2,
-                       width=10,
-                       relief="flat",
-                       underline=100,
-                       bg="white")
+        cards_to_review = []
+        daily_review_card_limit = 10
+        count = 0 
+        
+        for card_id, card_schedule in cards_schedule_data.items():
+            if count >= daily_review_card_limit:
+                break
+            if card_schedule["Due"] == date.today():
+                cards_to_review.append(card_id)
+        return cards_to_review
 
-    
-    # what cards are in this deck?
+    #----------- Function calling -------------
+
+    # get all the card IDs in the Deck
     deck_data = Data.get_file_data("decks")[deck]
 
     # for each of the cards in the deck. get the schedule data
-    cards_schedule_data= {}
-    for card in deck_data:
-        schedule_data = Data.get_file_data("schedule")[str(card)]
-        cards_schedule_data[card] = schedule_data
+    cards_schedule_data = get_schedule_data(deck_data)
 
     # pick brand_new_cards (ordered by card creation)
-
-    brand_new_cards = []
-    daily_new_card_limit = 10
-
-    count = 0
-    for card_id, card_schedule in cards_schedule_data.items():
-        if count >= daily_new_card_limit:
-            break
-        if card_schedule["Due"] == "0":
-            brand_new_cards.append(card_id)
+    brand_new_cards = pick_new_cards(cards_schedule_data)
 
     # find cards which are set to be reviewed today
+    cards_to_review = find_due_today_or_earlier(cards_schedule_data)
 
-    cards_to_review = []
-    daily_review_card_limit = 10
-    count = 0 
-    
-    for card_id, card_schedule in cards_schedule_data.items():
-        if count >= daily_review_card_limit:
-            break
-        if card_schedule["Due"] == date.today():
-            cards_to_review.append(card_id)
+    # -----------Elements instantination---------------
 
     brand_new_cards_lbl = Label(mainwindow,
                                 text=("New Cards: "+str(len(brand_new_cards))),
@@ -180,13 +178,29 @@ def draw_deck_overveiw(deck):
                                 )
     cards_learning      = Label(mainwindow,)
 
+    start_review_button = Button(mainwindow,
+                                 height=5,
+                                 width=30,
+                                 text="REVIEW ! !",
+                                 command=lambda: draw_review(brand_new_cards,cards_to_review),
+                                 bg="white")
+    deck_label = Label(mainwindow,
+                       text=deck,
+                       font=(500),
+                       height=2,
+                       width=10,
+                       relief="flat",
+                       underline=100,
+                       bg="white")
+
+    # ----------Clear existing stuff-------
+    clear_main_frame()
+    # ----------placing elements---------------
     start_review_button.place(x=200,y=200)
     deck_label.place(x=0,y=0)
     brand_new_cards_lbl.place(x=100,y=100)
     cards_to_review_lbl.place(x=100,y=140)
         
-    
-
 def draw_deck_options(deck):
     # main window settings 
 
@@ -194,7 +208,22 @@ def draw_deck_options(deck):
     card_view.title((deck + " options"))
     card_view.geometry("600x400")
 
+def draw_review(brand_new_cards,cards_to_revise):
+    
+    # create a queue of cards which need to be reviewd
+    
+    # Front view
+    # Back view
+    # pass button
+    # fail button
 
+    clear_main_frame()
+
+    pass
+
+
+# ---------- Calling Functions --------------------------
+Data.load_files_startup()
 decks_window_buttons()
 decks_list_elements()
 mainwindow.mainloop()
