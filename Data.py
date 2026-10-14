@@ -5,8 +5,8 @@ files = {}
 
 filepaths = {
      "card_data":"Data_Files/card_data.json",
-     "schedule":"Data_Files/card_data.json",
-     "decks":"Data_Files/card_data.json",
+     "schedule":"Data_Files/schedule.json",
+     "decks":"Data_Files/decks.json",
 }
 # make a files dictionary which holds card data and schedule data
 

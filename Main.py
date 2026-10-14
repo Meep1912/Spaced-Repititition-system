@@ -2,6 +2,7 @@ from tkinter import *
 import Card_View 
 import Add_Card_View
 import Data
+from datetime import date
 
 # button functions
 def filebuttonpressed():
@@ -15,7 +16,8 @@ def toolsbuttonpressed():
 def helpbuttonpressed():
     pass
 def decksbuttonpressed():
-    pass
+    clear_main_frame()
+    decks_list_elements()
 
 
 mainwindow = Tk()
@@ -56,7 +58,7 @@ def decks_window_buttons():
     decks = Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Decks",menu=decks)
 
-    decks.add_command(label="Decks",command=None)
+    decks.add_command(label="Decks",command=lambda:decksbuttonpressed())
 
     # --- Add --- 
 
@@ -73,6 +75,126 @@ def decks_window_buttons():
     view.add_command(label="View",command=lambda: Card_View.open_card_view_menu())
 
     mainwindow.config(menu=menubar)
+
+def decks_list_elements():
+    deck_list_from_file = Data.get_file_data("decks")
     
+    MainButtons = []
+    OptionButtons = []
+
+    for deck in deck_list_from_file:
+
+        M_Btn = Button(mainwindow,
+                     text=deck,
+                     command=lambda d=deck: draw_deck_overveiw(d),
+                    width=35)
+
+        Option_Btn = Button(mainwindow,
+                            text=". . . ",
+                            command=lambda d=deck: draw_deck_options(d),
+                            width=2)
+    
+        MainButtons.append(M_Btn)
+        OptionButtons.append(Option_Btn)
+    
+    x_origin = 100
+    initial_y_origin = 100
+    counter = 0
+
+    for element in range(0,len(MainButtons)):
+
+        MainButtons[element].place(x=x_origin,y=counter+initial_y_origin)
+        OptionButtons[element].place(x=x_origin+260,y=counter+initial_y_origin)
+    
+        counter += 30
+
+def clear_main_frame():
+    for widget in mainwindow.winfo_children():
+        if widget.winfo_class() == "Menu":
+            pass
+        else:
+            widget.destroy()
+
+def draw_deck_overveiw(deck):
+
+    clear_main_frame()
+
+    start_review_button = Button(mainwindow,
+                                 height=5,
+                                 width=30,
+                                 text="REVIEW ! !",
+                                 bg="white")
+
+    deck_label = Label(mainwindow,
+                       text=deck,
+                       font=(500),
+                       height=2,
+                       width=10,
+                       relief="flat",
+                       underline=100,
+                       bg="white")
+
+    
+    # what cards are in this deck?
+    deck_data = Data.get_file_data("decks")[deck]
+
+    # for each of the cards in the deck. get the schedule data
+    cards_schedule_data= {}
+    for card in deck_data:
+        schedule_data = Data.get_file_data("schedule")[str(card)]
+        cards_schedule_data[card] = schedule_data
+
+    # pick brand_new_cards (ordered by card creation)
+
+    brand_new_cards = []
+    daily_new_card_limit = 10
+
+    count = 0
+    for card_id, card_schedule in cards_schedule_data.items():
+        if count >= daily_new_card_limit:
+            break
+        if card_schedule["Due"] == "0":
+            brand_new_cards.append(card_id)
+
+    # find cards which are set to be reviewed today
+
+    cards_to_review = []
+    daily_review_card_limit = 10
+    count = 0 
+    
+    for card_id, card_schedule in cards_schedule_data.items():
+        if count >= daily_review_card_limit:
+            break
+        if card_schedule["Due"] == date.today():
+            cards_to_review.append(card_id)
+
+    brand_new_cards_lbl = Label(mainwindow,
+                                text=("New Cards: "+str(len(brand_new_cards))),
+                                font=(100),
+                                bg="white",
+                                )
+    cards_to_review_lbl = Label(mainwindow,
+                                text=("Cards To Reveiw: "+str(len(cards_to_review))),
+                                font=(100),
+                                bg="white",
+                                )
+    cards_learning      = Label(mainwindow,)
+
+    start_review_button.place(x=200,y=200)
+    deck_label.place(x=0,y=0)
+    brand_new_cards_lbl.place(x=100,y=100)
+    cards_to_review_lbl.place(x=100,y=140)
+        
+    
+
+def draw_deck_options(deck):
+    # main window settings 
+
+    card_view = Toplevel()
+    card_view.title((deck + " options"))
+    card_view.geometry("600x400")
+
+
 decks_window_buttons()
+decks_list_elements()
 mainwindow.mainloop()
