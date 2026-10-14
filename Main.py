@@ -6,6 +6,7 @@ from datetime import date
 
 
 
+
 # ------------- Window configiration -------------------
 mainwindow = Tk()
 canvas = Canvas()
@@ -109,14 +110,12 @@ def decks_list_elements():
         OptionButtons[element].place(x=x_origin+260,y=counter+initial_y_origin)
     
         counter += 30
-
 def clear_main_frame():
     for widget in mainwindow.winfo_children():
         if widget.winfo_class() == "Menu":
             pass
         else:
             widget.destroy()
-
 def draw_deck_overveiw(deck):
 
     #----------- Functions -------------------
@@ -164,26 +163,34 @@ def draw_deck_overveiw(deck):
     # find cards which are set to be reviewed today
     cards_to_review = find_due_today_or_earlier(cards_schedule_data)
 
+    # combine new and to revise into list
+
+    queue_of_cards = brand_new_cards + cards_to_review
+
+    # clear frame
+
+    clear_main_frame()
     # -----------Elements instantination---------------
+    
 
     brand_new_cards_lbl = Label(mainwindow,
-                                text=("New Cards: "+str(len(brand_new_cards))),
-                                font=(100),
-                                bg="white",
-                                )
+                                    text=("New Cards: "+str(len(brand_new_cards))),
+                                    font=(100),
+                                    bg="white",
+                                    )
+    
     cards_to_review_lbl = Label(mainwindow,
-                                text=("Cards To Reveiw: "+str(len(cards_to_review))),
-                                font=(100),
-                                bg="white",
-                                )
-    cards_learning      = Label(mainwindow,)
-
+                                    text=("Cards To Reveiw: "+str(len(cards_to_review))),
+                                    font=(100),
+                                    bg="white",
+                                    )
+    current_queue_item = 0
     start_review_button = Button(mainwindow,
-                                 height=5,
-                                 width=30,
-                                 text="REVIEW ! !",
-                                 command=lambda: draw_review(brand_new_cards,cards_to_review),
-                                 bg="white")
+                                    height=5,
+                                    width=30,
+                                    text="REVIEW ! !",
+                                    command=lambda: start_review(queue_of_cards,current_queue_item),
+                                    bg="white")
     deck_label = Label(mainwindow,
                        text=deck,
                        font=(500),
@@ -193,14 +200,12 @@ def draw_deck_overveiw(deck):
                        underline=100,
                        bg="white")
 
-    # ----------Clear existing stuff-------
-    clear_main_frame()
     # ----------placing elements---------------
-    start_review_button.place(x=200,y=200)
+
+    start_review_button.place(x=300,y=300)
     deck_label.place(x=0,y=0)
     brand_new_cards_lbl.place(x=100,y=100)
     cards_to_review_lbl.place(x=100,y=140)
-        
 def draw_deck_options(deck):
     # main window settings 
 
@@ -208,22 +213,63 @@ def draw_deck_options(deck):
     card_view.title((deck + " options"))
     card_view.geometry("600x400")
 
-def draw_review(brand_new_cards,cards_to_revise):
-    
-    # create a queue of cards which need to be reviewd
-    
-    # Front view
-    # Back view
-    # pass button
-    # fail button
 
-    clear_main_frame()
+def get_card_data(current_card_being_reviewed):
+        card_data = Data.get_file_data("card_data")[current_card_being_reviewed]
+        front = card_data["Front"]
+        back = card_data["Back"]
+        type = card_data["Card_Type"]
+        return front,back,type
 
-    pass
+def start_review(queue_of_cards,current_queue_item):
+
+    # get current card 
+    current_card_being_reviewed = queue_of_cards[current_queue_item]
+    # -------get the card data of the current card being reviewed--------
+    front,back,type = get_card_data(current_card_being_reviewed)
 
 
-# ---------- Calling Functions --------------------------
-Data.load_files_startup()
-decks_window_buttons()
-decks_list_elements()
-mainwindow.mainloop()
+    #----------- Draw the front of the card ----------------
+
+    draw_front(queue_of_cards,current_card_being_reviewed,current_queue_item,front,back)
+
+def draw_front(queue_of_cards,current_card_being_reviewed,current_queue_item,front,back):
+        
+        clear_main_frame()
+        front_field = Label(mainwindow,text=front,font=(100),background="white")
+        flip_button = Button(mainwindow,
+                             text="Flip!!!",
+                             command=lambda:draw_back(current_card_being_reviewed,back))
+        front_field.place(x=100,y=100)
+        flip_button.place(x=300,y=550)
+
+def draw_back(queue_of_cards,current_card_being_reviewed,current_queue_item,back):
+
+        clear_main_frame()
+        back_field_text = Label(mainwindow,text=back,font=(100),background="white")
+        pass_button = Button(mainwindow,text="Pass",width=7,height=3,command=lambda: rate_card(current_card_being_reviewed,1))  
+        fail_button = Button(mainwindow,text="Fail",width=7,height=3,command=lambda: rate_card(current_card_being_reviewed,0))
+
+        back_field_text.place(x=100,y=100)
+        pass_button.place(x=250,y=550)
+        fail_button.place(x=350,y=550)
+
+def rate_card(queue_of_cards,current_card_being_reviewed,current_queue_item,rating):
+
+    Data.get_file_data("schedule")[current_card_being_reviewed]
+
+    # algorithm which ajusts schedule based on rating
+
+    current_card_being_reviewed += 1
+    start_review(queue_of_cards,current_queue_item)
+
+
+
+def main():
+    Data.load_files_startup()
+    decks_window_buttons()
+    decks_list_elements()
+    mainwindow.mainloop()
+
+
+main()

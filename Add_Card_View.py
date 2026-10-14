@@ -165,7 +165,7 @@ def done_button(Entries,Done,add_card_menu):
     i = 0
     while i < 100:
         if key in Data.get_file_data("card_data"):
-            key = generate_ID()
+            key = str(generate_ID())
         else:
             i = 100
         i += 1
