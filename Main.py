@@ -3,6 +3,7 @@ import Card_View
 import Add_Card_View
 import Data
 from datetime import date
+import datetime
 
 
 
@@ -116,60 +117,89 @@ def clear_main_frame():
             pass
         else:
             widget.destroy()
+
+def what_cards_need_to_be_reviewed(deck):
+
+        def get_schedule_data(deck_data):
+            cards_schedule_data= {}
+            for card in deck_data:
+                schedule_data = Data.get_file_data("schedule")[str(card)]
+                cards_schedule_data[card] = schedule_data
+            return cards_schedule_data
+        
+        def pick_new_cards(cards_schedule_data):
+            brand_new_cards = []
+            daily_new_card_limit = 10
+
+            count = 0
+            for card_id, card_schedule in cards_schedule_data.items():
+                if count >= daily_new_card_limit:
+                    break
+                if card_schedule["Due"] == "0":
+                    brand_new_cards.append(card_id)
+            return brand_new_cards
+        
+        def find_due_today_or_earlier(cards_schedule_data):
+
+            cards_to_review = []
+            
+            daily_review_card_limit = 100
+            
+            count = 0
+
+        
+            for card_id, card_schedule in cards_schedule_data.items():
+                
+                if count >= daily_review_card_limit:
+                    break
+                
+                if card_schedule["Due"] == str(date.today()):
+                    print("FOUND ONE")
+                    cards_to_review.append(card_id)
+                print("-"*10)
+                print(card_id)
+                print(card_schedule)
+                    
+            return cards_to_review
+
+    
+        # get all the card IDs in the Deck
+        deck_data = Data.get_file_data("decks")[deck]
+
+        # for each of the cards in the deck. get the schedule data
+        cards_schedule_data = get_schedule_data(deck_data)
+
+        # pick brand_new_cards (ordered by card creation)
+        brand_new_cards = pick_new_cards(cards_schedule_data)
+
+        # find cards which are set to be reviewed today
+        
+        cards_to_review = find_due_today_or_earlier(cards_schedule_data)
+
+        print(cards_to_review)
+
+        # combine new and to revise into list
+
+        queue_of_cards = brand_new_cards + cards_to_review
+
+        return brand_new_cards,cards_to_review, queue_of_cards
+
+
 def draw_deck_overveiw(deck):
 
     #----------- Functions -------------------
-    def get_schedule_data(deck_data):
-        cards_schedule_data= {}
-        for card in deck_data:
-            schedule_data = Data.get_file_data("schedule")[str(card)]
-            cards_schedule_data[card] = schedule_data
-        return cards_schedule_data
-    def pick_new_cards(cards_schedule_data):
-        brand_new_cards = []
-        daily_new_card_limit = 10
 
-        count = 0
-        for card_id, card_schedule in cards_schedule_data.items():
-            if count >= daily_new_card_limit:
-                break
-            if card_schedule["Due"] == "0":
-                brand_new_cards.append(card_id)
-        return brand_new_cards
-    def find_due_today_or_earlier(cards_schedule_data):
-
-        cards_to_review = []
-        daily_review_card_limit = 10
-        count = 0 
-        
-        for card_id, card_schedule in cards_schedule_data.items():
-            if count >= daily_review_card_limit:
-                break
-            if card_schedule["Due"] == date.today():
-                cards_to_review.append(card_id)
-        return cards_to_review
 
     #----------- Function calling -------------
 
-    # get all the card IDs in the Deck
-    deck_data = Data.get_file_data("decks")[deck]
-
-    # for each of the cards in the deck. get the schedule data
-    cards_schedule_data = get_schedule_data(deck_data)
-
-    # pick brand_new_cards (ordered by card creation)
-    brand_new_cards = pick_new_cards(cards_schedule_data)
-
-    # find cards which are set to be reviewed today
-    cards_to_review = find_due_today_or_earlier(cards_schedule_data)
-
-    # combine new and to revise into list
-
-    queue_of_cards = brand_new_cards + cards_to_review
+    
 
     # clear frame
 
     clear_main_frame()
+    
+    brand_new_cards,cards_to_review, queue_of_cards = what_cards_need_to_be_reviewed(deck)
+    
     # -----------Elements instantination---------------
     
 
@@ -189,7 +219,7 @@ def draw_deck_overveiw(deck):
                                     height=5,
                                     width=30,
                                     text="REVIEW ! !",
-                                    command=lambda: Review(queue_of_cards).show_card(),
+                                    command=lambda: Review(queue_of_cards,deck).show_card(),
                                     bg="white")
     deck_label = Label(mainwindow,
                        text=deck,
@@ -209,9 +239,26 @@ def draw_deck_overveiw(deck):
 def draw_deck_options(deck):
     # main window settings 
 
-    card_view = Toplevel()
-    card_view.title((deck + " options"))
-    card_view.geometry("600x400")
+    deck_options = Toplevel()
+    deck_options.title((deck + " options"))
+    deck_options.geometry("600x400")
+
+    Delete_all_cards = Button(deck_options,
+                    text="Delete_Cards",
+                    bg="white",
+                    relief="flat",
+                    command=lambda: delt(),
+                    font=(12))
+    
+    def delt():
+        empty = {}
+        Data.save_file("schedule", empty)
+        Data.save_file("card_data", empty)
+        Data.save_file("decks", empty)
+
+    Delete_all_cards.pack()
+    
+    
 
 def get_card_data(current_card_being_reviewed):
         card_data = Data.get_file_data("card_data")[current_card_being_reviewed]
@@ -221,9 +268,10 @@ def get_card_data(current_card_being_reviewed):
         return front,back,type
 
 class Review:
-    def __init__(self, queue):
+    def __init__(self,queue,deck):
         self.queue = queue
         self.index = 0
+        self.deck = deck
 
     
     def card(self):
@@ -299,42 +347,50 @@ class Review:
         # Ease is the difficulty of the card
         # Interval is days since last review
         # Repeats is the total amount of times the card has been seen
-
+        
         if rating == 0:
-            New_Ease -= 0.2
+            New_Ease = Ease + 0.2
 
         if rating == 1:
-            New_Ease += 0.2
+            New_Ease = Ease - 0.2
 
-        Review_again_in_this_many_days = Ease * Interval
+
+        Days_till_next_review = New_Ease * Interval
         
-        New_Repeats += 1
+        # calculate the date at which the card should be reviewed next 
 
+        New_Due = datetime.date.today() + datetime.timedelta(days=Days_till_next_review)
+        New_Due = str(New_Due)
+        
+        New_Repeats = Repeats + 1
+        
         new_schedule_data = {
-            "Due":
-            "Interval":New_Interval,
+            "Due":New_Due,
+            "Interval":Days_till_next_review,
             "Ease":New_Ease,
             "Repeats":New_Repeats
         }
 
-        all_schedule_data[str(self.card)]
-        #output due
+        # change cards old schedule data to new
 
+        all_schedule_data[str(self.card)] = new_schedule_data
+        
+        Data.save_file("schedule",all_schedule_data)
 
-
-
-
-
-        #----------------------------------------------------
-
-
-
+        queue_of_cards = what_cards_need_to_be_reviewed(self.deck)
 
         self.index += 1
         self.show_card()
 
     def finish(self):
         clear_main_frame()
+        
+        Title = Label(mainwindow,
+                        text="Complete",
+                        bg="white",
+                        relief="flat",
+                        font=(12))
+        Title.pack()
         # draw "review complete" screen
 
 
