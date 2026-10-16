@@ -26,6 +26,23 @@ def get_file_data(filename):
     global files
     return files[filename]
 
+def clear_file(file):
+    
+    empty_dict = {}
+    with open(filepaths[file], "w", encoding="utf-8") as f:
+        json.dump(empty_dict, f, indent=4)
+    
+def delete_in_file(file,key):
+    data = get_file_data(file)
+    data.pop(key)
+
+def save_whole_dict(file,dictionary):
+
+    
+    with open(filepaths[file], "w", encoding="utf-8") as f:
+        json.dump(dictionary, f, indent=4)
+    
+
 def save_file(file, data_to_write):
 
     current_file_data = get_file_data(file)

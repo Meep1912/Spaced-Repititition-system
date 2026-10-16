@@ -47,6 +47,7 @@ def decks_window_buttons():
     menubar.add_cascade(label="Decks",menu=decks)
 
     decks.add_command(label="Decks",command=lambda:decksbuttonpressed())
+    decks.add_command(label="Add Deck",command=lambda:Add_Deck_View())
 
     # --- Add --- 
 
@@ -79,6 +80,38 @@ def helpbuttonpressed():
 def decksbuttonpressed():
     clear_main_frame()
     decks_list_elements()
+
+
+def Add_Deck_View():
+    
+    # main window settings 
+    Add_Deck_view = Toplevel()
+    Add_Deck_view.title("Add Deck")
+    Add_Deck_view.geometry("200x50")
+
+
+    def pressed_add_deck(Deck_Entry):
+        
+        New_Deck = {Deck_Entry.get(): []}
+
+        Data.save_file("decks",New_Deck)
+
+    def draw_elements(Add_Deck_view):
+        
+        Title = Button(Add_Deck_view,
+                      text="Add Deck",
+                       command=lambda: pressed_add_deck(Deck_Entry))
+        
+        Deck_Entry = Entry(Add_Deck_view)
+                      
+        Title.place(x=0,y=20)
+        Deck_Entry.place(x=0,y=0)
+    
+
+    draw_elements(Add_Deck_view)
+    
+
+
 
 def decks_list_elements():
     deck_list_from_file = Data.get_file_data("decks")
@@ -154,11 +187,8 @@ def what_cards_need_to_be_reviewed(deck):
                     break
                 
                 if card_schedule["Due"] == str(date.today()):
-                    print("FOUND ONE")
+
                     cards_to_review.append(card_id)
-                print("-"*10)
-                print(card_id)
-                print(card_schedule)
                     
             return cards_to_review
 
@@ -237,6 +267,7 @@ def draw_deck_overveiw(deck):
     brand_new_cards_lbl.place(x=100,y=100)
     cards_to_review_lbl.place(x=100,y=140)
 def draw_deck_options(deck):
+    
     # main window settings 
 
     deck_options = Toplevel()
@@ -244,19 +275,55 @@ def draw_deck_options(deck):
     deck_options.geometry("600x400")
 
     Delete_all_cards = Button(deck_options,
-                    text="Delete_Cards",
+                    text="Delete Cards",
                     bg="white",
                     relief="flat",
-                    command=lambda: delt(),
+                    command=lambda: delt(deck),
                     font=(12))
-    
-    def delt():
-        empty = {}
-        Data.save_file("schedule", empty)
-        Data.save_file("card_data", empty)
-        Data.save_file("decks", empty)
+
+    Delete_deck_btn = Button(deck_options,
+                    text="Delete Deck",
+                    bg="white",
+                    relief="flat",
+                    command=lambda: Delete_Deck(deck),
+                    font=(12))
+# ------------------------- SAME FUNCTION PRETTY MUCH --------------------- # 
+    def Delete_Deck(deck):
+        
+        # get card ids in deck
+        
+        card_IDs = Data.get_file_data("decks")[deck]
+        
+        # get schedule data
+        schedule = Data.get_file_data("schedule")
+        
+        # get card data
+        card_data = Data.get_file_data("card_data")
+        
+        for card in card_IDs:
+            schedule.pop(card)
+            card_data.pop(card)
+
+        Data.delete_in_file("decks",deck)
+
+    def delt(deck):
+
+        # get card ids in deck
+        card_IDs = Data.get_file_data("decks")[deck]
+        # get schedule data
+        schedule = Data.get_file_data("schedule")
+        # get card data
+        card_data = Data.get_file_data("card_data")
+        # remove the cards from each file
+        for card in card_IDs:
+            schedule.pop(card)
+            card_data.pop(card)
+            
+        save_whole_dict("card_data",card_data)
+  # ------------------------- SAME FUNCTION PRETTY MUCH --------------------- #       save_whole_dict("schedule",schedule)
 
     Delete_all_cards.pack()
+    Delete_deck_btn.pack()
     
     
 
@@ -290,25 +357,25 @@ class Review:
 
         #---------- Load elements ----------------
 
-        front_field = Label(mainwindow, 
+        front_field = Message(mainwindow, 
               text=self.front, 
               font=(100), 
               background="white")
         
-        back_field = Button(mainwindow,
+        Flip_btn = Button(mainwindow,
                 text="Flip!!!", 
                 command=self.draw_back)
         
         #---------- Draw elements ----------------
         front_field.place(x=100, y=100)
-        back_field.place(x=300, y=550)
+        Flip_btn.place(x=300, y=550)
 
     def draw_back(self):
         clear_main_frame()
 
         #---------- Load elements ----------------
 
-        back_field = Label(mainwindow,
+        back_field = Message(mainwindow,
                            text=self.back, 
                            font=(100), 
                            background="white")
@@ -325,11 +392,26 @@ class Review:
                           height=3,
                           command=lambda: self.rate(0))
 
+        # ------------------ TEMP ------------------
+        card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
+
+        Interval_ = card_schedule_data["Interval"]
+        
+        current_interval = Label(mainwindow,
+                                 text=Interval_)
+
+        current_interval.place(x=300,y=500)
+        # ------------------ TEMP ------------------
+
+
+
+                                 
         #---------- Draw elements ----------------
 
         back_field.place(x=100, y=100)
         pass_btn.place(x=250, y=550)
         fail_btn.place(x=350, y=550)
+        
 
     def rate(self, rating):
 
@@ -353,13 +435,18 @@ class Review:
 
         if rating == 1:
             New_Ease = Ease - 0.2
-
-
-        Days_till_next_review = New_Ease * Interval
+            
+        if Interval == 0:
+            New_Due = datetime.date.today()
+            Days_till_next_review = 0
+        else:
         
-        # calculate the date at which the card should be reviewed next 
+            Days_till_next_review = float(New_Ease) * int(Interval)
+            
+            # calculate the date at which the card should be reviewed next 
 
-        New_Due = datetime.date.today() + datetime.timedelta(days=Days_till_next_review)
+            New_Due = datetime.date.today() + datetime.timedelta(days=Days_till_next_review)
+
         New_Due = str(New_Due)
         
         New_Repeats = Repeats + 1
