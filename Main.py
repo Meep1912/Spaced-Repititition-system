@@ -95,6 +95,8 @@ def Add_Deck_View():
         New_Deck = {Deck_Entry.get(): []}
 
         Data.save_file("decks",New_Deck)
+        decks_list_elements()
+
 
     def draw_elements(Add_Deck_view):
         
@@ -319,7 +321,7 @@ def draw_deck_options(deck):
             schedule.pop(card)
             card_data.pop(card)
             
-        save_whole_dict("card_data",card_data)
+        Data.save_whole_dict("card_data",card_data)
   # ------------------------- SAME FUNCTION PRETTY MUCH --------------------- #       save_whole_dict("schedule",schedule)
 
     Delete_all_cards.pack()
@@ -440,7 +442,7 @@ class Review:
             New_Due = datetime.date.today()
             Days_till_next_review = 0
         else:
-        
+            
             Days_till_next_review = float(New_Ease) * int(Interval)
             
             # calculate the date at which the card should be reviewed next 
