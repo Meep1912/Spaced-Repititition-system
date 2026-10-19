@@ -179,9 +179,11 @@ def done_button(Entries,Done,add_card_menu):
 
     New_Schedule_Entry = {
         key:{"Due":"0",
-             "Interval":0,
-             "Ease":0.0,
-             "Repeats":0}}
+             "Interval":1,
+             "Ease":2.5,
+             "Repeats":0,
+             "Lapses":0,
+             "Leech":FALSE}}
 
     
 

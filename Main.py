@@ -276,12 +276,6 @@ def draw_deck_options(deck):
     deck_options.title((deck + " options"))
     deck_options.geometry("600x400")
 
-    Delete_all_cards = Button(deck_options,
-                    text="Delete Cards",
-                    bg="white",
-                    relief="flat",
-                    command=lambda: delt(deck),
-                    font=(12))
 
     Delete_deck_btn = Button(deck_options,
                     text="Delete Deck",
@@ -308,23 +302,12 @@ def draw_deck_options(deck):
 
         Data.delete_in_file("decks",deck)
 
-    def delt(deck):
+    
 
-        # get card ids in deck
-        card_IDs = Data.get_file_data("decks")[deck]
-        # get schedule data
-        schedule = Data.get_file_data("schedule")
-        # get card data
-        card_data = Data.get_file_data("card_data")
-        # remove the cards from each file
-        for card in card_IDs:
-            schedule.pop(card)
-            card_data.pop(card)
             
         Data.save_whole_dict("card_data",card_data)
   # ------------------------- SAME FUNCTION PRETTY MUCH --------------------- #       save_whole_dict("schedule",schedule)
 
-    Delete_all_cards.pack()
     Delete_deck_btn.pack()
     
     
@@ -349,9 +332,16 @@ class Review:
 
     def show_card(self):
         if self.index >= len(self.queue):
-            self.finish()
-            return
+            brand_new_cards,cards_to_review, queue_of_cards = what_cards_need_to_be_reviewed(self.deck)
+            if len(queue_of_cards) == 0:
+                self.finish()
+                return
+            else:
+                self.queue = queue_of_cards
+                self.index = 0
+
         self.front, self.back, self.type = get_card_data(self.card)
+        
         self.draw_front()
 
     def draw_front(self):
@@ -427,27 +417,39 @@ class Review:
         Interval = card_schedule_data["Interval"]
         Ease = card_schedule_data["Ease"]
         Repeats = card_schedule_data["Repeats"]
+        Lapses = card_schedule_data["Lapses"]
 
         # Ease is the difficulty of the card
         # Interval is days since last review
         # Repeats is the total amount of times the card has been seen
         
+
         if rating == 0:
-            New_Ease = Ease + 0.2
+            Interval = 0
+            Ease = max(1.3, Ease - 0.2)
 
         if rating == 1:
-            New_Ease = Ease - 0.2
-            
-        if Interval == 0:
-            New_Due = datetime.date.today()
-            Days_till_next_review = 0
-        else:
-            
-            Days_till_next_review = float(New_Ease) * int(Interval)
+            # learning steps 
+            if Repeats == 0:
+                Interval = 1
+            elif Repeats == 1:
+                Interval = 3
+            # difficulty is then based on ease
+            else:
+                Interval = round(Interval * Ease)
+
+            Ease += 0.05
             
             # calculate the date at which the card should be reviewed next 
 
-            New_Due = datetime.date.today() + datetime.timedelta(days=Days_till_next_review)
+        Leech_Point = 8
+
+        if Lapses >= Leech_Point:
+            LeechState = True
+        else:
+            LeechState = False
+
+        New_Due = datetime.date.today() + datetime.timedelta(days=Interval)
 
         New_Due = str(New_Due)
         
@@ -455,9 +457,11 @@ class Review:
         
         new_schedule_data = {
             "Due":New_Due,
-            "Interval":Days_till_next_review,
-            "Ease":New_Ease,
-            "Repeats":New_Repeats
+            "Interval":Interval,
+            "Ease":Ease,
+            "Repeats":New_Repeats,
+            "Lapses":Lapses,
+            "Leech":LeechState
         }
 
         # change cards old schedule data to new
@@ -472,6 +476,7 @@ class Review:
         self.show_card()
 
     def finish(self):
+
         clear_main_frame()
         
         Title = Label(mainwindow,
