@@ -7,6 +7,7 @@ filepaths = {
      "card_data":"Data_Files/card_data.json",
      "schedule":"Data_Files/schedule.json",
      "decks":"Data_Files/decks.json",
+     "stats":"Data_Files/stats.json"
 }
 # make a files dictionary which holds card data and schedule data
 
@@ -21,6 +22,11 @@ def load_files_startup():
     
     with open(filepaths["decks"], "r",encoding="utf-8") as f:
         files["decks"] = json.load(f)
+
+    with open(filepaths["stats"], "r",encoding="utf-8") as f:
+        files["stats"] = json.load(f)
+
+    
 
 def get_file_data(filename):
     global files

@@ -3,10 +3,8 @@ from tkinter import ttk
 import time
 import Data
 
-def open_add_card_menu():
-    draw_add_card_menu()
+# ------------- Main Window configiration -------------------
 
-# main window settings 
 def draw_add_card_menu():
     add_card_menu = Toplevel()
     add_card_menu.title("Add Card")
@@ -15,7 +13,97 @@ def draw_add_card_menu():
 
     draw_elements(add_card_menu)
 
-# components of window
+# --------------------------------------------------------------------------------
+# ----------------------------- L O G I C ----------------------------------------
+# --------------------------------------------------------------------------------
+
+
+def done_button(Entries,Done,add_card_menu):
+
+    def get_values(Entries):
+        values = []
+        for Entry in Entries:
+            try:
+                values.append(Entry.get("1.0","end-1c"))
+            except:
+                values.append(Entry.get())
+        return(values)
+
+    def generate_ID():
+        ID = time.time_ns()
+        return ID
+    
+    def compare_ID(key):
+        return 0
+    
+    values = get_values(Entries)
+
+    def reset_done(Done):
+        Done.config(text="Add")
+
+    def card_added(Done):
+        Done.config(text="Card Added")
+        add_card_menu.after(500,reset_done,Done)
+
+    for value in values:
+        if not value.strip():
+            Done.config(text="Empty Fields")
+            add_card_menu.after(500,reset_done,Done)
+            return 0
+        else:
+            add_card_menu.after(500,card_added,Done)
+
+
+    # break values up into variables
+
+    front = values[0]
+    Back = values[1]
+    Deck = values[3]
+    Card_Type = values[2]
+
+    key = str(generate_ID())
+
+    # compare
+    # generates upto 100 keys if there are colisions 
+    i = 0
+    while i < 100:
+        if key in Data.get_file_data("card_data"):
+            key = str(generate_ID())
+        else:
+            i = 100
+        i += 1
+    
+
+        
+    New_Card_Entry = {
+        key:{"Front":front,
+             "Back":Back,
+             "Card_Type":Card_Type}}
+
+    New_Schedule_Entry = {
+        key:{"Due":"0",
+             "Interval":1,
+             "Ease":2.5,
+             "Repeats":0,
+             "Lapses":0,
+             "Leech":FALSE}}
+
+    
+
+    # write to card_data file
+    Data.save_file("card_data",New_Card_Entry)
+    # add an blank entry to schedule with matching id
+    Data.save_file("schedule",New_Schedule_Entry)
+    # write to file
+    Data.append_decks_file(Deck,key)
+    print("hi!")
+
+# --------------------------------------------------------------------------------
+# ----------------------------- D R A W I N G ------------------------------------
+# --------------------------------------------------------------------------------
+
+def open_add_card_menu():
+    draw_add_card_menu()
 
 def draw_elements(add_card_menu):
 
@@ -115,94 +203,3 @@ def draw_elements(add_card_menu):
 
     Done.place(x=25,y=410)
 
-def done_button(Entries,Done,add_card_menu):
-
-    def get_values(Entries):
-        values = []
-        for Entry in Entries:
-            try:
-                values.append(Entry.get("1.0","end-1c"))
-            except:
-                values.append(Entry.get())
-        return(values)
-
-    def generate_ID():
-        ID = time.time_ns()
-        return ID
-    
-    def compare_ID(key):
-        return 0
-    
-    values = get_values(Entries)
-
-    def reset_done(Done):
-        Done.config(text="Add")
-
-    def card_added(Done):
-        Done.config(text="Card Added")
-        add_card_menu.after(500,reset_done,Done)
-
-    for value in values:
-        if not value.strip():
-            Done.config(text="Empty Fields")
-            add_card_menu.after(500,reset_done,Done)
-            return 0
-        else:
-            add_card_menu.after(500,card_added,Done)
-
-
-    # break values up into variables
-
-    front = values[0]
-    Back = values[1]
-    Deck = values[3]
-    Card_Type = values[2]
-
-    key = str(generate_ID())
-
-    # compare
-    # generates upto 100 keys if there are colisions 
-    i = 0
-    while i < 100:
-        if key in Data.get_file_data("card_data"):
-            key = str(generate_ID())
-        else:
-            i = 100
-        i += 1
-    
-
-        
-    New_Card_Entry = {
-        key:{"Front":front,
-             "Back":Back,
-             "Card_Type":Card_Type}}
-
-    New_Schedule_Entry = {
-        key:{"Due":"0",
-             "Interval":1,
-             "Ease":2.5,
-             "Repeats":0,
-             "Lapses":0,
-             "Leech":FALSE}}
-
-    
-
-    # write to card_data file
-    Data.save_file("card_data",New_Card_Entry)
-    # add an blank entry to schedule with matching id
-    Data.save_file("schedule",New_Schedule_Entry)
-    # write to file
-    Data.append_decks_file(Deck,key)
-    print("hi!")
-
-
-
-
-# TO DO -
-
-# Need to fetch Card types
-# Need to fetch Deck types
-    # Need an add card type
-    # Need an add deck type
-
-# Need done to write to Data.json

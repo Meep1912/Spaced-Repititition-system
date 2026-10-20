@@ -2,8 +2,8 @@
     "1792442437638491800": {
         "Due": "2026-10-20",
         "Interval": 0,
-        "Ease": 2.3499999999999996,
-        "Repeats": 2,
+        "Ease": 2.899999999999996,
+        "Repeats": 23,
         "Lapses": 0,
         "Leech": false
     },
@@ -74,24 +74,24 @@
     "1792442439964089700": {
         "Due": "2026-10-20",
         "Interval": 0,
-        "Ease": 2.3499999999999996,
-        "Repeats": 2,
+        "Ease": 2.899999999999997,
+        "Repeats": 18,
         "Lapses": 0,
         "Leech": false
     },
     "1792442440067626200": {
-        "Due": "2026-10-20",
-        "Interval": 1,
-        "Ease": 2.55,
-        "Repeats": 1,
+        "Due": "2026-10-23",
+        "Interval": 3,
+        "Ease": 2.5999999999999996,
+        "Repeats": 2,
         "Lapses": 0,
         "Leech": false
     },
     "1792442440204183100": {
-        "Due": "2026-10-20",
-        "Interval": 1,
-        "Ease": 2.55,
-        "Repeats": 1,
+        "Due": "2026-10-23",
+        "Interval": 3,
+        "Ease": 2.5999999999999996,
+        "Repeats": 2,
         "Lapses": 0,
         "Leech": false
     },
@@ -120,10 +120,10 @@
         "Leech": false
     },
     "1792442440778472200": {
-        "Due": "2026-10-20",
-        "Interval": 1,
-        "Ease": 2.55,
-        "Repeats": 1,
+        "Due": "2026-10-23",
+        "Interval": 3,
+        "Ease": 2.5999999999999996,
+        "Repeats": 2,
         "Lapses": 0,
         "Leech": false
     },
@@ -144,10 +144,10 @@
         "Leech": false
     },
     "1792442441147811100": {
-        "Due": "2026-10-20",
-        "Interval": 1,
-        "Ease": 2.55,
-        "Repeats": 1,
+        "Due": "2026-10-23",
+        "Interval": 3,
+        "Ease": 2.5999999999999996,
+        "Repeats": 2,
         "Lapses": 0,
         "Leech": false
     },
@@ -184,19 +184,235 @@
         "Leech": false
     },
     "1792442441819992600": {
-        "Due": "2026-10-20",
-        "Interval": 1,
-        "Ease": 2.55,
-        "Repeats": 1,
+        "Due": "2026-10-23",
+        "Interval": 3,
+        "Ease": 2.5999999999999996,
+        "Repeats": 2,
         "Lapses": 0,
         "Leech": false
     },
     "1792442442028026700": {
-        "Due": "2026-10-20",
-        "Interval": 1,
-        "Ease": 2.55,
-        "Repeats": 1,
+        "Due": "2026-10-23",
+        "Interval": 3,
+        "Ease": 2.5999999999999996,
+        "Repeats": 2,
         "Lapses": 0,
         "Leech": false
+    },
+    "1792509395428577000": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509395644198000": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509395796140400": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509395957120900": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509396211189300": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509396355882100": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509396491545800": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509396628071900": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509396899339200": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509397059000200": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509397212166300": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509397427908800": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509397579104700": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509397724467400": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509397883962000": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509398019019200": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509399643989000": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509399842550600": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509401788194900": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509405547088400": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509405716239600": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509405882535800": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509406059493300": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509406227558300": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509406395361800": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509408988037000": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
+    },
+    "1792509410309441900": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
+        "Leech": 0
     }
 }

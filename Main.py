@@ -4,67 +4,22 @@ import Add_Card_View
 import Data
 from datetime import date
 import datetime
+import time as time
 
 
 
 
-# ------------- Window configiration -------------------
+# ------------- Main Window configiration -------------------
 
 mainwindow = Tk()
 canvas = Canvas()
 mainwindow.title("S.R.S")
-mainwindow.geometry("600x600")
+mainwindow.geometry("900x600")
 mainwindow.config(bg="white")
 
-# ----------------- Functions ----------------
-
-def decks_window_buttons():
-    menubar = Menu(mainwindow)
-
-    # --- File ---
-    file = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="File",menu=file)
-
-    file.add_command(label="Import",command=None)
-    file.add_command(label="Export",command=None)
-                            
-    # --- Edit ---
-
-    edit = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Edit",menu=edit)
-
-    edit.add_command(label="Edit",command=None)
-
-    # --- Help ---
-
-    help = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Help",menu=help)
-
-    help.add_command(label="Help",command=None)
-
-    # --- Decks --- 
-
-    decks = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Decks",menu=decks)
-
-    decks.add_command(label="Decks",command=lambda:decksbuttonpressed())
-    decks.add_command(label="Add Deck",command=lambda:Add_Deck_View())
-
-    # --- Add --- 
-
-    add  = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Add",menu=add)
-
-    add.add_command(label="Add",command=lambda: Add_Card_View.open_add_card_menu())
-
-    # ---View --- 
-
-    view = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="View",menu=view)
-
-    view.add_command(label="View",command=lambda: Card_View.open_card_view_menu())
-
-    mainwindow.config(menu=menubar)
+# --------------------------------------------------------------------------------
+# ----------------------------- L O G I C ----------------------------------------
+# --------------------------------------------------------------------------------
 
 # taskbar buttons
 
@@ -81,78 +36,7 @@ def helpbuttonpressed():
 def decksbuttonpressed():
     clear_main_frame()
     decks_list_elements()
-
-
-def Add_Deck_View():
-    
-    # main window settings 
-    Add_Deck_view = Toplevel()
-    Add_Deck_view.title("Add Deck")
-    Add_Deck_view.geometry("200x50")
-
-
-    def pressed_add_deck(Deck_Entry):
-        
-        New_Deck = {Deck_Entry.get(): []}
-
-        Data.save_file("decks",New_Deck)
-        decks_list_elements()
-
-
-    def draw_elements(Add_Deck_view):
-        
-        Title = Button(Add_Deck_view,
-                      text="Add Deck",
-                       command=lambda: pressed_add_deck(Deck_Entry))
-        
-        Deck_Entry = Entry(Add_Deck_view)
-                      
-        Title.place(x=0,y=20)
-        Deck_Entry.place(x=0,y=0)
-    
-
-    draw_elements(Add_Deck_view)
-    
-
-
-
-def decks_list_elements():
-    deck_list_from_file = Data.get_file_data("decks")
-    
-    MainButtons = []
-    OptionButtons = []
-
-    for deck in deck_list_from_file:
-
-        M_Btn = Button(mainwindow,
-                     text=deck,
-                     command=lambda d=deck: draw_deck_overveiw(d),
-                    width=35)
-
-        Option_Btn = Button(mainwindow,
-                            text=". . . ",
-                            command=lambda d=deck: draw_deck_options(d),
-                            width=2)
-    
-        MainButtons.append(M_Btn)
-        OptionButtons.append(Option_Btn)
-    
-    x_origin = 100
-    initial_y_origin = 100
-    counter = 0
-
-    for element in range(0,len(MainButtons)):
-
-        MainButtons[element].place(x=x_origin,y=counter+initial_y_origin)
-        OptionButtons[element].place(x=x_origin+260,y=counter+initial_y_origin)
-    
-        counter += 30
-def clear_main_frame():
-    for widget in mainwindow.winfo_children():
-        if widget.winfo_class() == "Menu":
-            pass
-        else:
-            widget.destroy()
+    heatmap()
 
 def what_cards_need_to_be_reviewed(deck):
 
@@ -217,6 +101,267 @@ def what_cards_need_to_be_reviewed(deck):
 
         return brand_new_cards,cards_to_review, queue_of_cards
 
+def get_card_data(current_card_being_reviewed):
+        card_data = Data.get_file_data("card_data")[current_card_being_reviewed]
+        front = card_data["Front"]
+        back = card_data["Back"]
+        type = card_data["Card_Type"]
+        return front,back,type
+
+
+# --------------------------------------------------------------------------------
+# ----------------------------- D R A W I N G ------------------------------------
+# --------------------------------------------------------------------------------
+
+
+def clear_main_frame():
+    for widget in mainwindow.winfo_children():
+        if widget.winfo_class() == "Menu":
+            pass
+        else:
+            widget.destroy()
+
+# ----------------------------- Draw Sub-Menus ------------------------------------
+
+def draw_deck_options(deck):
+    
+    # main window settings 
+
+    deck_options = Toplevel()
+    deck_options.title((deck + " options"))
+    deck_options.geometry("600x400")
+
+
+    Delete_deck_btn = Button(deck_options,
+                    text="Delete Deck",
+                    bg="white",
+                    relief="flat",
+                    command=lambda: Delete_Deck(deck),
+                    font=(12))
+
+    def Delete_Deck(deck):
+        
+        # get card ids in deck
+        card_IDs = Data.get_file_data("decks")[deck]
+        # get schedule data
+        schedule = Data.get_file_data("schedule")
+        # get card data
+        card_data = Data.get_file_data("card_data")
+        
+        for card in card_IDs:
+            schedule.pop(card)
+            card_data.pop(card)
+
+        # delete the data in decks.json
+        Data.delete_in_file("decks",deck)
+
+        # save the new dictionarys which have the cards removed
+        Data.save_whole_dict("card_data",card_data)
+        Data.save_whole_dict("schedule",schedule)
+        
+
+    Delete_deck_btn.pack()
+    
+def Add_Deck_View():
+    
+    # main window settings 
+    Add_Deck_view = Toplevel()
+    Add_Deck_view.title("Add Deck")
+    Add_Deck_view.geometry("200x50")
+
+
+    def pressed_add_deck(Deck_Entry):
+        
+        New_Deck = {Deck_Entry.get(): []}
+
+        Data.save_file("decks",New_Deck)
+        decks_list_elements()
+
+
+    def draw_elements(Add_Deck_view):
+        
+        Title = Button(Add_Deck_view,
+                      text="Add Deck",
+                       command=lambda: pressed_add_deck(Deck_Entry))
+        
+        Deck_Entry = Entry(Add_Deck_view)
+                      
+        Title.place(x=0,y=20)
+        Deck_Entry.place(x=0,y=0)
+    
+
+    draw_elements(Add_Deck_view)
+def heatmap():
+
+    def reveiws_in_day(date):
+        all_stats = Data.get_file_data("stats")
+        day_stats = all_stats.get(str(date),{})
+        return ( len(day_stats) )
+
+    def colour_gradient(count):
+        if count == 0:
+            return(rgb_to_hex(189,189,189))
+        else:
+            # rgb goes from 0 - 255
+            green = min(255,60 +count*5)
+            return(rgb_to_hex(0,green,0))
+
+    def rgb_to_hex(r,g,b):
+        return f"#{r:02x}{g:02x}{b:02x}"
+    
+    def draw_days():
+        today = datetime.date.today()
+        weeks = 52
+        # Monday of the current week, then go back (weeks - 1) more weeks
+        start = today - datetime.timedelta(days=today.weekday() + 7 * (weeks - 1))
+
+        heatmap_frame = Frame(mainwindow)
+
+        for i in range((today - start).days + 1):
+            day = start + datetime.timedelta(days=i)
+            column, row = divmod(i, 7)    # row 0 = Monday ... row 6 = Sunday
+
+            Frame(heatmap_frame,
+                  bg=colour_gradient(reveiws_in_day(day)),
+                  width=12, height=12).grid(row=row, column=column, padx=1, pady=1)
+
+        heatmap_frame.place(x=100, y=400)
+
+    draw_days()
+
+def Help_View():
+    
+    # main window settings 
+    Help_view_frame = Toplevel()
+    Help_view_frame.title("Help")
+    Help_view_frame.geometry("500x400")
+    def Draw_Elements():
+
+        text = Text(Help_view_frame, wrap="word",width=50,height=10)
+        text.pack()
+        scroll = Scrollbar(Help_view_frame, command=text.yview)
+        text.config(yscrollcommand=scroll.set)
+        scroll.pack(side="right",fill="y")
+        text.pack(side="left",fill="both",expand=True)
+
+        text.tag_config("link",foreground="blue",underline=True)
+        text.tag_config("heading",font=("Arial",16,"bold"))
+
+        sections = {
+            "intro": "Introduction",
+            "setup": "Setup",
+            "usage": "Usage"
+        }
+
+        def jump(mark):
+            text.see(mark)
+            text.yview(mark)
+
+        text.insert("end","Contents\n","heading")
+        for mark, title in sections.items():
+            tag = f"toc_{mark}"
+            text.insert("end",title + "\n", ("link",tag))
+            text.tag_bind(tag, "<Button-1>", lambda e, m=mark: jump(m))
+            text.tag_bind(tag, "<Enter>",lambda e: text.config(cursor="hand2"))
+            text.tag_bind(tag, "<Leave>", lambda e: text.config(cursor=""))
+        
+        text.insert("end","\n")
+
+        for mark, title in sections.items():
+            text.mark_set(mark, "end-1c")
+            text.mark_gravity(mark, "left")
+            text.insert("end", title + "\n", "heading")
+            text.insert("end", ("Some content for "+ title + ". ")*40 + "\n\n")
+        text.config(state="disabled")
+
+    Draw_Elements()    
+            
+
+# Draw menu bar at the top of the screen
+
+def decks_window_buttons():
+    menubar = Menu(mainwindow)
+
+    # --- File ---
+    file = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="File",menu=file)
+
+    file.add_command(label="Import",command=None)
+    file.add_command(label="Export",command=None)
+                            
+    # --- Edit ---
+
+    edit = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Edit",menu=edit)
+
+    edit.add_command(label="Edit",command=None)
+
+    # --- Help ---
+
+    help = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Help",menu=help)
+
+    help.add_command(label="Help",command=lambda: Help_View())
+
+    # --- Decks --- 
+
+    decks = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Decks",menu=decks)
+
+    decks.add_command(label="Decks",command=lambda:decksbuttonpressed())
+    decks.add_command(label="Add Deck",command=lambda:Add_Deck_View())
+
+    # --- Add --- 
+
+    add  = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Add",menu=add)
+
+    add.add_command(label="Add",command=lambda: Add_Card_View.open_add_card_menu())
+
+    # ---View --- 
+
+    view = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="View",menu=view)
+
+    view.add_command(label="View",command=lambda: Card_View.open_card_view_menu())
+
+    mainwindow.config(menu=menubar)
+
+# List all the decks
+
+def decks_list_elements():
+    deck_list_from_file = Data.get_file_data("decks")
+    
+    MainButtons = []
+    OptionButtons = []
+
+    for deck in deck_list_from_file:
+
+        M_Btn = Button(mainwindow,
+                     text=deck,
+                     command=lambda d=deck: draw_deck_overveiw(d),
+                    width=35)
+
+        Option_Btn = Button(mainwindow,
+                            text=". . . ",
+                            command=lambda d=deck: draw_deck_options(d),
+                            width=2)
+    
+        MainButtons.append(M_Btn)
+        OptionButtons.append(Option_Btn)
+    
+    x_origin = 300
+    initial_y_origin = 100
+    counter = 0
+
+    for element in range(0,len(MainButtons)):
+
+        MainButtons[element].place(x=x_origin,y=counter+initial_y_origin)
+        OptionButtons[element].place(x=x_origin+260,y=counter+initial_y_origin)
+    
+        counter += 30
+
+# Preview before reveiwing
 
 def draw_deck_overveiw(deck):
 
@@ -266,53 +411,7 @@ def draw_deck_overveiw(deck):
     brand_new_cards_lbl.place(x=100,y=100)
     cards_to_review_lbl.place(x=100,y=140)
 
-def draw_deck_options(deck):
-    
-    # main window settings 
-
-    deck_options = Toplevel()
-    deck_options.title((deck + " options"))
-    deck_options.geometry("600x400")
-
-
-    Delete_deck_btn = Button(deck_options,
-                    text="Delete Deck",
-                    bg="white",
-                    relief="flat",
-                    command=lambda: Delete_Deck(deck),
-                    font=(12))
-
-    def Delete_Deck(deck):
-        
-        # get card ids in deck
-        card_IDs = Data.get_file_data("decks")[deck]
-        # get schedule data
-        schedule = Data.get_file_data("schedule")
-        # get card data
-        card_data = Data.get_file_data("card_data")
-        
-        for card in card_IDs:
-            schedule.pop(card)
-            card_data.pop(card)
-
-        # delete the data in decks.json
-        Data.delete_in_file("decks",deck)
-
-        # save the new dictionarys which have the cards removed
-        Data.save_whole_dict("card_data",card_data)
-        Data.save_whole_dict("schedule",schedule)
-        
-
-    Delete_deck_btn.pack()
-    
-    
-
-def get_card_data(current_card_being_reviewed):
-        card_data = Data.get_file_data("card_data")[current_card_being_reviewed]
-        front = card_data["Front"]
-        back = card_data["Back"]
-        type = card_data["Card_Type"]
-        return front,back,type
+# Main review logic
 
 class Review:
     def __init__(self,queue,deck):
@@ -338,10 +437,11 @@ class Review:
         self.front, self.back, self.type = get_card_data(self.card)
         
         self.draw_front()
+        
 
     def draw_front(self):
         clear_main_frame()
-
+        self.start = time.time()
         #---------- Load elements ----------------
 
         front_field = Message(mainwindow, 
@@ -402,6 +502,7 @@ class Review:
 
     def rate(self, rating):
 
+        time_taken = time.time() - self.start
         all_schedule_data = Data.get_file_data("schedule")
         card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
 
@@ -459,11 +560,21 @@ class Review:
             "Leech":LeechState
         }
 
-        # change cards old schedule data to new
+        time_of_day = datetime.datetime.now().strftime("%H:%M:%S")
+        todays_date = datetime.date.today()
+        todays_date = str(todays_date)
+
+        all_stats = Data.get_file_data("stats")
+
+        all_stats.setdefault(todays_date, {})
+        all_stats[todays_date].setdefault(str(self.card), []).append(
+            [time_taken, rating, time_of_day]
+        )
 
         all_schedule_data[str(self.card)] = new_schedule_data
         
         Data.save_file("schedule",all_schedule_data)
+        Data.save_file("stats",all_stats)
 
         queue_of_cards = what_cards_need_to_be_reviewed(self.deck)
 
@@ -482,13 +593,13 @@ class Review:
         Title.pack()
         # draw "review complete" screen
 
-
-
+# Calling functions 
 
 def main():
     Data.load_files_startup()
     decks_window_buttons()
     decks_list_elements()
+    heatmap()
     mainwindow.mainloop()
 
 
