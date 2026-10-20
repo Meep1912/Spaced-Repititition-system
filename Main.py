@@ -248,30 +248,34 @@ def Help_View():
         text.tag_config("heading",font=("Arial",16,"bold"))
 
         sections = {
-            "intro": "Introduction",
-            "setup": "Setup",
-            "usage": "Usage"
-        }
+            "intro": ("Introduction", "S.R.S stands for Spaced Repitition System this software aims to help you forget less, how does it do that? It tries to predict when you are about to forget something and then reminds you at that estimated time."),
+            "setup": ("Fundementals", "\nCreating Decks:\n\n""press Decks > add deck, then a window with an entry box should appear, Type what you would like to name your deck then press: Add Deck"
+            "\n\nCreating Cards:\n\n""Now that you have a deck you can start to fill it with cards: press Add > Add Card, then a window with multiple entry boxes should appear,choose a type, a deck and then fill the front and back fields"),
+            "usage": ("Usage","hello world")}
 
         def jump(mark):
             text.see(mark)
             text.yview(mark)
 
         text.insert("end","Contents\n","heading")
-        for mark, title in sections.items():
-            tag = f"toc_{mark}"
-            text.insert("end",title + "\n", ("link",tag))
-            text.tag_bind(tag, "<Button-1>", lambda e, m=mark: jump(m))
-            text.tag_bind(tag, "<Enter>",lambda e: text.config(cursor="hand2"))
-            text.tag_bind(tag, "<Leave>", lambda e: text.config(cursor=""))
-        
-        text.insert("end","\n")
 
-        for mark, title in sections.items():
+        # table of contents
+        for mark, (title, body) in sections.items():
+            tag = f"toc_{mark}"
+            text.insert("end", title + "\n", ("link", tag))
+            text.tag_bind(tag, "<Button-1>", lambda e, m=mark: jump(m))
+            text.tag_bind(tag, "<Enter>", lambda e: text.config(cursor="hand2"))
+            text.tag_bind(tag, "<Leave>", lambda e: text.config(cursor=""))
+
+        text.insert("end", "\n")
+
+        # sections
+        for mark, (title, body) in sections.items():
             text.mark_set(mark, "end-1c")
             text.mark_gravity(mark, "left")
             text.insert("end", title + "\n", "heading")
-            text.insert("end", ("Some content for "+ title + ". ")*40 + "\n\n")
+            text.insert("end", body + "\n\n")
+
         text.config(state="disabled")
 
     Draw_Elements()    
@@ -316,7 +320,7 @@ def decks_window_buttons():
     add  = Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Add",menu=add)
 
-    add.add_command(label="Add",command=lambda: Add_Card_View.open_add_card_menu())
+    add.add_command(label="Add Card",command=lambda: Add_Card_View.open_add_card_menu())
 
     # ---View --- 
 
