@@ -9,6 +9,7 @@ import datetime
 
 
 # ------------- Window configiration -------------------
+
 mainwindow = Tk()
 canvas = Canvas()
 mainwindow.title("S.R.S")
@@ -221,11 +222,6 @@ def draw_deck_overveiw(deck):
 
     #----------- Functions -------------------
 
-
-    #----------- Function calling -------------
-
-    
-
     # clear frame
 
     clear_main_frame()
@@ -246,6 +242,7 @@ def draw_deck_overveiw(deck):
                                     font=(100),
                                     bg="white",
                                     )
+    
     current_queue_item = 0
     start_review_button = Button(mainwindow,
                                     height=5,
@@ -268,6 +265,7 @@ def draw_deck_overveiw(deck):
     deck_label.place(x=0,y=0)
     brand_new_cards_lbl.place(x=100,y=100)
     cards_to_review_lbl.place(x=100,y=140)
+
 def draw_deck_options(deck):
     
     # main window settings 
@@ -283,16 +281,13 @@ def draw_deck_options(deck):
                     relief="flat",
                     command=lambda: Delete_Deck(deck),
                     font=(12))
-# ------------------------- SAME FUNCTION PRETTY MUCH --------------------- # 
+
     def Delete_Deck(deck):
         
         # get card ids in deck
-        
         card_IDs = Data.get_file_data("decks")[deck]
-        
         # get schedule data
         schedule = Data.get_file_data("schedule")
-        
         # get card data
         card_data = Data.get_file_data("card_data")
         
@@ -300,13 +295,13 @@ def draw_deck_options(deck):
             schedule.pop(card)
             card_data.pop(card)
 
+        # delete the data in decks.json
         Data.delete_in_file("decks",deck)
 
-    
-
-            
+        # save the new dictionarys which have the cards removed
         Data.save_whole_dict("card_data",card_data)
-  # ------------------------- SAME FUNCTION PRETTY MUCH --------------------- #       save_whole_dict("schedule",schedule)
+        Data.save_whole_dict("schedule",schedule)
+        
 
     Delete_deck_btn.pack()
     
