@@ -153,7 +153,7 @@ def draw_elements(card_view):
         sidebar = Frame(card_view)
         sidebar.pack(side="left",fill=Y)
 
-        label = Label(sidebar,text="My Side bar")
+        label = Label(sidebar,text="Filters")
         label.pack()
 
         def deck_panel():

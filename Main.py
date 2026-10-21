@@ -17,6 +17,9 @@ mainwindow.title("S.R.S")
 mainwindow.geometry("900x600")
 mainwindow.config(bg="white")
 
+# when press esc draw decks view
+mainwindow.bind("<Escape>",lambda event: decksbuttonpressed())
+
 # --------------------------------------------------------------------------------
 # ----------------------------- L O G I C ----------------------------------------
 # --------------------------------------------------------------------------------
@@ -92,8 +95,6 @@ def what_cards_need_to_be_reviewed(deck):
         # find cards which are set to be reviewed today
         
         cards_to_review = find_due_today_or_earlier(cards_schedule_data)
-
-        print(cards_to_review)
 
         # combine new and to revise into list
 
@@ -344,11 +345,13 @@ def decks_list_elements():
         M_Btn = Button(mainwindow,
                      text=deck,
                      command=lambda d=deck: draw_deck_overveiw(d),
+                     relief="flat",
                     width=35)
 
         Option_Btn = Button(mainwindow,
                             text=". . . ",
                             command=lambda d=deck: draw_deck_options(d),
+                            relief="flat",
                             width=2)
     
         MainButtons.append(M_Btn)
@@ -376,6 +379,11 @@ def draw_deck_overveiw(deck):
     clear_main_frame()
     
     brand_new_cards,cards_to_review, queue_of_cards = what_cards_need_to_be_reviewed(deck)
+
+    # Key binds 
+
+    mainwindow.bind("<Return>",lambda event: Review(queue_of_cards,deck).show_card())
+    mainwindow.bind("<space>", lambda event: Review(queue_of_cards,deck).show_card())
     
     # -----------Elements instantination---------------
     
@@ -429,8 +437,13 @@ class Review:
     card = property(card)
 
     def show_card(self):
+
+        # unbind
+        mainwindow.unbind("<Return>")
+        mainwindow.unbind("<space>")
+
+        brand_new_cards,cards_to_review, queue_of_cards = what_cards_need_to_be_reviewed(self.deck)
         if self.index >= len(self.queue):
-            brand_new_cards,cards_to_review, queue_of_cards = what_cards_need_to_be_reviewed(self.deck)
             if len(queue_of_cards) == 0:
                 self.finish()
                 return
@@ -445,6 +458,20 @@ class Review:
 
     def draw_front(self):
         clear_main_frame()
+
+        # ----- key binds -----
+                
+        # clear previous binds
+        
+        mainwindow.unbind("<Key-1>")
+        mainwindow.unbind("<Key-0>")
+        
+        # bind new 
+                
+        mainwindow.bind("<Return>", lambda event: self.draw_back())
+        mainwindow.bind("<space>",  lambda event: self.draw_back())
+
+
         self.start = time.time()
         #---------- Load elements ----------------
 
@@ -454,30 +481,47 @@ class Review:
               background="white")
         
         Flip_btn = Button(mainwindow,
-                text="Flip!!!", 
-                command=self.draw_back)
+                text="Reveal", 
+                command=self.draw_back,
+                width=10,
+                height=3)
         
         #---------- Draw elements ----------------
-        front_field.place(x=100, y=100)
-        Flip_btn.place(x=300, y=550)
+        front_field.pack(anchor="center")
+        Flip_btn.pack(side="bottom")
 
-    def draw_back(self):
+
+
+    def draw_back(self, event=None):
         clear_main_frame()
+        # --- key binds ----
+
+        # clear previous keybinds
+
+        mainwindow.unbind("<Return>")
+        mainwindow.unbind("<space>")
+
+        # bind new keybinds
+
+        mainwindow.bind("<Key-1>",lambda event: self.rate(1))
+        mainwindow.bind("<Key-0>",lambda event: self.rate(0))
 
         #---------- Load elements ----------------
+
+        buttons = Frame(mainwindow, bg= "white")
 
         back_field = Message(mainwindow,
                            text=self.back, 
                            font=(100), 
                            background="white")
 
-        pass_btn = Button(mainwindow, 
+        pass_btn = Button(buttons, 
                           text="Pass", 
                           width=7, 
                           height=3,
                           command=lambda: self.rate(1))
         
-        fail_btn = Button(mainwindow, 
+        fail_btn = Button(buttons, 
                           text="Fail", 
                           width=7, 
                           height=3,
@@ -489,20 +533,24 @@ class Review:
         Interval_ = card_schedule_data["Interval"]
         
         current_interval = Label(mainwindow,
-                                 text=Interval_)
+                                 bg="white",
+                                 text=str(Interval_)+" Days")
 
-        current_interval.place(x=300,y=500)
+        
         # ------------------ TEMP ------------------
-
-
 
                                  
         #---------- Draw elements ----------------
 
-        back_field.place(x=100, y=100)
-        pass_btn.place(x=250, y=550)
-        fail_btn.place(x=350, y=550)
+        back_field.pack(anchor="center")
+
         
+        buttons.pack(side="bottom",pady=10)
+
+        pass_btn.pack(side=LEFT, padx=5)
+        fail_btn.pack  (side=LEFT,pady=5)
+
+        current_interval.pack(side="bottom")
 
     def rate(self, rating):
 
@@ -579,8 +627,6 @@ class Review:
         
         Data.save_file("schedule",all_schedule_data)
         Data.save_file("stats",all_stats)
-
-        queue_of_cards = what_cards_need_to_be_reviewed(self.deck)
 
         self.index += 1
         self.show_card()
