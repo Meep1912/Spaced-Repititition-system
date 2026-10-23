@@ -1,13 +1,17 @@
 from tkinter import *
 import Data
+import Add_Card_View
 
 # ------------- Main Window configiration -------------------
 
 def open_card_view_menu():
+    global card_view
+
+
     card_view = Toplevel()
     card_view.title("Card View")
     card_view.geometry("600x450")
-    draw_elements(card_view)
+    draw_elements()
 
 
 # --------------------------------------------------------------------------------
@@ -81,28 +85,41 @@ def decode_filters(entry):
             filters["Leech"] = bool(filters["Leech"])
 
         return filters
+
 # --------------------------------------------------------------------------------
 # ----------------------------- D R A W I N G ------------------------------------
 # --------------------------------------------------------------------------------
 
 
+def clear_frame(frame):
+    for widget in frame.winfo_children():
+        if widget.winfo_class() == "Menu":
+            pass
+        else:
+            widget.destroy()
 
 # main window settings 
 def open_card_view_menu():
+    global card_view
+
     card_view = Toplevel()
     card_view.title("Card View")
     card_view.geometry("600x450")
-    draw_elements(card_view)
+    draw_elements()
 
-def draw_elements(card_view):
+def draw_elements():
 
-    def draw_main_area():
+    global card_view
+
+    clear_frame(card_view)
+
+    def draw_main_area(card_view):
 
         def draw_filtered_cards(filters):
 
             listbox = Listbox(main_area,
                                 height=20,
-                                width=60,
+                                width=80,
                                 bg="white",
                                 activestyle="dotbox",
                                 yscrollcommand=scroll_bar.set)
@@ -111,6 +128,7 @@ def draw_elements(card_view):
             i = 0
             data = get_data()
 
+            cardIds = []
             for card_id, card in data.items():
 
                 # all checks if the card satisfies every filter
@@ -124,9 +142,24 @@ def draw_elements(card_view):
                         card["Deck"],
                         card["Front"],
                         card["Back"],
-                        card["Due"]]
+                        card["Due"],
+                        str(card["Suspended"])]
+                    
+                    cardIds.append(card_id)
+
                     listbox.insert(i,format(values))
-                    i += 1
+                    
+            def on_select(event):
+                selection = listbox.curselection() 
+                if selection:                        
+                    index = selection[0]
+                    what_card_was_clicked = cardIds[index]
+                    
+                    Add_Card_View.draw_elements_edit_card(what_card_was_clicked)
+
+            listbox.bind("<<ListboxSelect>>", on_select)
+
+            i += 1
             listbox.place(x=100,y=100)
 
         main_area = Frame(card_view)   
@@ -138,6 +171,7 @@ def draw_elements(card_view):
         Front_Lbl = Label(main_area,text="Front").place(x=180,y=60)
         Back_Lbl = Label(main_area,text="Back").place(x=270,y=60)
         Due_Lbl = Label(main_area, text="Due").place(x=360,y=60)
+        Suspend_lbl = Label(main_area, text="Suspend").place(x=450,y=60)
 
         main_area.pack(side="right",fill="both",expand=True)
 
@@ -148,7 +182,7 @@ def draw_elements(card_view):
         draw_filtered_cards(decode_filters(Search_Bar.get()))  
         return Search_Bar
         
-    def draw_sidebar(Search_bar):
+    def draw_sidebar(Search_bar,card_view):
 
         sidebar = Frame(card_view)
         sidebar.pack(side="left",fill=Y)
@@ -180,5 +214,5 @@ def draw_elements(card_view):
         deck_panel()
 
 
-    Search_bar = draw_main_area()
-    draw_sidebar(Search_bar)
+    Search_bar = draw_main_area(card_view)
+    draw_sidebar(Search_bar,card_view)

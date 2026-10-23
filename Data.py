@@ -7,24 +7,18 @@ filepaths = {
      "card_data":"Data_Files/card_data.json",
      "schedule":"Data_Files/schedule.json",
      "decks":"Data_Files/decks.json",
-     "stats":"Data_Files/stats.json"
+     "stats":"Data_Files/stats.json",
+     "card_types":"Data_Files/card_types.json"
 }
 # make a files dictionary which holds card data and schedule data
 
 def load_files_startup():
     global files
     # read data.json and load info into dictionaries
-    with open(filepaths["card_data"], "r",encoding="utf-8") as f:
-        files["card_data"] = json.load(f)
 
-    with open(filepaths["schedule"], "r",encoding="utf-8") as f:
-        files["schedule"] = json.load(f)
-    
-    with open(filepaths["decks"], "r",encoding="utf-8") as f:
-        files["decks"] = json.load(f)
-
-    with open(filepaths["stats"], "r",encoding="utf-8") as f:
-        files["stats"] = json.load(f)
+    for file in filepaths.keys():
+        with open(filepaths[file], "r",encoding="utf-8") as f:
+            files[file] = json.load(f)
 
     
 
@@ -49,7 +43,7 @@ def save_whole_dict(file,dictionary):
         json.dump(dictionary, f, indent=4)
     
 
-def save_file(file, data_to_write):
+def save_to_file(file, data_to_write):
 
     current_file_data = get_file_data(file)
 
@@ -57,8 +51,7 @@ def save_file(file, data_to_write):
 
     # save a changed dictionary
 
-    with open(filepaths[file], "w", encoding="utf-8") as f:
-        json.dump(current_file_data, f, indent=4)
+    save_whole_dict(file,current_file_data)
 
 def append_decks_file(Deck,key):
 
@@ -76,4 +69,10 @@ def append_decks_file(Deck,key):
 
  
 
-        
+def find_deck(card):
+    decks = get_file_data("decks")
+    
+    for deck_name, cards in decks.items():
+        if card in cards:
+            return deck_name
+    return "Empty"

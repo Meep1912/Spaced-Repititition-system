@@ -59,7 +59,9 @@ def what_cards_need_to_be_reviewed(deck):
                 if count >= daily_new_card_limit:
                     break
                 if card_schedule["Due"] == "0":
-                    brand_new_cards.append(card_id)
+                    if card_schedule["Suspended"] == False:
+                        brand_new_cards.append(card_id)
+            
             return brand_new_cards
         
         def find_due_today_or_earlier(cards_schedule_data):
@@ -78,7 +80,9 @@ def what_cards_need_to_be_reviewed(deck):
                 
                 if card_schedule["Due"] == str(date.today()):
 
-                    cards_to_review.append(card_id)
+                    if card_schedule["Suspended"] == False:
+
+                        cards_to_review.append(card_id)
                     
             return cards_to_review
 
@@ -175,7 +179,7 @@ def Add_Deck_View():
         
         New_Deck = {Deck_Entry.get(): []}
 
-        Data.save_file("decks",New_Deck)
+        Data.save_to_file("decks",New_Deck)
         decks_list_elements()
 
 
@@ -192,8 +196,10 @@ def Add_Deck_View():
     
 
     draw_elements(Add_Deck_view)
-def heatmap():
 
+
+def heatmap():
+    return 0
     def reveiws_in_day(date):
         all_stats = Data.get_file_data("stats")
         day_stats = all_stats.get(str(date),{})
@@ -280,7 +286,80 @@ def Help_View():
         text.config(state="disabled")
 
     Draw_Elements()    
+
+def Card_Types_View():
+
+    def edit_card_type(c):
+        pass
+
+    def add_card_type():
+        Add_Card_Type_frame = Toplevel()
+        Add_Card_Type_frame.title("Add Card Type")
+        Add_Card_Type_frame.geometry("500x400")
+
+        default_fields = {
+            "front":"text",
+            "back":"text",            
+        }
+
+        add_type_scroll_bar = Scrollbar(Add_Card_Type_frame)
+        add_type_scroll_bar.pack(side=RIGHT,fill=Y)
+
+        Listbox_of_fields = Listbox(Add_Card_Type_frame,
+                                    height=20,
+                                    width=60,
+                                    bg="white",
+                                    activestyle="dotbox",
+                                    yscrollcommand=add_type_scroll_bar.set)
+                                    
+        i = 0
+
+        for field in default_fields.keys():
             
+            Listbox_of_fields.insert(i,field)
+
+            i += 1 
+
+
+    Card_Types_frame = Toplevel()
+    Card_Types_frame.title("Card Types")
+    Card_Types_frame.geometry("500x400")
+
+    data = Data.get_file_data("card_types")
+
+
+    def draw_elements():
+        list_of_types_frame = Frame(Card_Types_frame)
+        list_of_types_frame.pack(anchor="center")
+
+        scroll_bar = Scrollbar(Card_Types_frame)
+        scroll_bar.pack(side=RIGHT,fill=Y)
+
+        Listbox_of_types = Listbox(Card_Types_frame,
+                                    height=20,
+                                    width=60,
+                                    bg="white",
+                                    activestyle="dotbox",
+                                    yscrollcommand=scroll_bar.set)
+
+        i = 0
+        for card_type in data.keys():
+
+            Listbox_of_types.insert(i,card_type)
+            i += 1 
+
+
+        add_card_type_btn = Button(list_of_types_frame,
+                            text="Add Card Type",
+                            command= lambda: add_card_type())
+        
+        add_card_type_btn.pack(side="top")
+        Listbox_of_types.pack(anchor="center")
+
+        Listbox_of_types.bind("<<ListboxSelect>>", lambda event: edit_card_type(Listbox_of_types.get(Listbox_of_types.curselection()[0])))
+
+    draw_elements()
+
 
 # Draw menu bar at the top of the screen
 
@@ -300,6 +379,7 @@ def decks_window_buttons():
     menubar.add_cascade(label="Edit",menu=edit)
 
     edit.add_command(label="Edit",command=None)
+    edit.add_command(label="Card Types",command=lambda: Card_Types_View())
 
     # --- Help ---
 
@@ -566,18 +646,42 @@ class Review:
         Ease = card_schedule_data["Ease"]
         Repeats = card_schedule_data["Repeats"]
         Lapses = card_schedule_data["Lapses"]
+        LeechState = card_schedule_data["Leech"]
+        SuspendState = card_schedule_data["Suspended"]
 
         # Ease is the difficulty of the card
-        # Interval is days since last review
-        # Repeats is the total amount of times the card has been seen
+        # Interval is number of days until next review
+        # Lapses is the total amount of times the card has been failed
+        # repeats is the consecutive passes
         
 
         if rating == 0:
+            # if the card is marked as a leech (repeatidly failed), then suspend the card so its
+            # ignored in review mode
+
+            if LeechState == True:
+
+                SuspendState = True
+
+            # reset consecutive passes
+
+            New_Repeats = 0
+
+            # increase consecutive fails
+
+            Lapses += 1
+
+            # reset days till card is shown next to 0
+
             Interval = 0
+
+            # decrease easiness with a lower limit of 1.3
+
             Ease = max(1.3, Ease - 0.2)
 
         if rating == 1:
             # learning steps 
+            
             if Repeats == 0:
                 Interval = 1
             elif Repeats == 1:
@@ -585,6 +689,8 @@ class Review:
             # difficulty is then based on ease
             else:
                 Interval = round(Interval * Ease)
+
+            New_Repeats = Repeats + 1
 
             Ease += 0.05
             
@@ -601,7 +707,7 @@ class Review:
 
         New_Due = str(New_Due)
         
-        New_Repeats = Repeats + 1
+        
         
         new_schedule_data = {
             "Due":New_Due,
@@ -609,7 +715,8 @@ class Review:
             "Ease":Ease,
             "Repeats":New_Repeats,
             "Lapses":Lapses,
-            "Leech":LeechState
+            "Leech":LeechState,
+            "Suspended":SuspendState
         }
 
         time_of_day = datetime.datetime.now().strftime("%H:%M:%S")
@@ -625,8 +732,8 @@ class Review:
 
         all_schedule_data[str(self.card)] = new_schedule_data
         
-        Data.save_file("schedule",all_schedule_data)
-        Data.save_file("stats",all_stats)
+        Data.save_to_file("schedule",all_schedule_data)
+        Data.save_to_file("stats",all_stats)
 
         self.index += 1
         self.show_card()
