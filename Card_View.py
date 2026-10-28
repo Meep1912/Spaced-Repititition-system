@@ -98,14 +98,7 @@ def clear_frame(frame):
         else:
             widget.destroy()
 
-# main window settings 
-def open_card_view_menu():
-    global card_view
 
-    card_view = Toplevel()
-    card_view.title("Card View")
-    card_view.geometry("600x450")
-    draw_elements()
 
 def draw_elements():
 
@@ -129,6 +122,16 @@ def draw_elements():
             data = get_data()
 
             cardIds = []
+
+            def on_select(event):
+                selection = listbox.curselection() 
+                if selection:                        
+                    index = selection[0]
+                    what_card_was_clicked = cardIds[index]
+                    
+                    Add_Card_View.draw_elements_edit_card(what_card_was_clicked)
+
+
             for card_id, card in data.items():
 
                 # all checks if the card satisfies every filter
@@ -148,18 +151,12 @@ def draw_elements():
                     cardIds.append(card_id)
 
                     listbox.insert(i,format(values))
+                    i += 1
                     
-            def on_select(event):
-                selection = listbox.curselection() 
-                if selection:                        
-                    index = selection[0]
-                    what_card_was_clicked = cardIds[index]
-                    
-                    Add_Card_View.draw_elements_edit_card(what_card_was_clicked)
+
 
             listbox.bind("<<ListboxSelect>>", on_select)
 
-            i += 1
             listbox.place(x=100,y=100)
 
         main_area = Frame(card_view)   

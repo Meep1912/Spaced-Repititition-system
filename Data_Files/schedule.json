@@ -1,9 +1,9 @@
 {
-    "1792787292599153400": {
-        "Due": "2026-10-24",
+    "1793196951727354400": {
+        "Due": "0",
         "Interval": 1,
-        "Ease": 2.55,
-        "Repeats": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
         "Lapses": 0,
         "Leech": false,
         "Suspended": false

@@ -1,11 +1,12 @@
 from tkinter import *
+from tkinter import messagebox
 import Card_View 
 import Add_Card_View
 import Data
 from datetime import date
 import datetime
 import time as time
-
+import Scheduler
 
 
 
@@ -141,8 +142,22 @@ def draw_deck_options(deck):
                     text="Delete Deck",
                     bg="white",
                     relief="flat",
-                    command=lambda: Delete_Deck(deck),
+                    command=lambda: confirmation(deck),
                     font=(12))
+
+    rename_deck_btn = Button(deck_options,
+                    text="Rename Deck",
+                    bg="white",
+                    relief="flat",
+                    command=lambda: rename_deck(deck),
+                    font=(12))
+
+    def confirmation(deck):
+        cards = len(Data.get_file_data("decks")[deck])
+        result = messagebox.askokcancel("Deleting deck with "+str(cards)+" cards","are you you want to delete this deck:"+deck,icon="warning")
+        if result:
+            Delete_Deck(deck)
+            decksbuttonpressed()
 
     def Delete_Deck(deck):
         
@@ -166,6 +181,69 @@ def draw_deck_options(deck):
         
 
     Delete_deck_btn.pack()
+
+    rename_deck_btn.pack()
+    
+
+def rename_deck(deck):
+    
+        # main window settings 
+        rename_deck_view = Toplevel()
+        rename_deck_view.title("Rename Deck")
+        rename_deck_view.geometry("200x50")
+    
+        def validation(newname,originalname):
+            decks_Data = Data.get_file_data("decks")
+            if newname.isspace():
+                return 0
+            elif newname == "":
+                return 0
+            elif newname == originalname:
+                return 1
+            elif newname in decks_Data.keys() and newname != originalname:
+                return 2
+            else:
+                return newname 
+    
+        def reset_done(Deck_Entry):
+            Deck_Entry.config(text="Rename Deck")
+        def pressed_edit_deck_name(Deck_Entry):
+            
+            New_Deck_Name = Deck_Entry.get()
+    
+            if validation(New_Deck_Name,deck) == 0:
+                Deck_Entry.config(text="Empty field")
+                rename_deck_view.after(250,reset_done,Deck_Entry)
+            if validation(New_Deck_Name,deck) == 1:
+                Deck_Entry.config(text="Unchanged")
+                rename_deck_view.after(250,reset_done,Deck_Entry)
+            if validation(New_Deck_Name,deck) == 2:
+                Deck_Entry.config(text="Deck already exists")
+                rename_deck_view.after(250,reset_done,Deck_Entry)
+            else:
+                decks = Data.get_file_data("decks")
+                decks[New_Deck_Name] = decks.pop(deck)
+                Data.save_whole_dict("decks",deck)
+                Deck_Entry.config(text="Added")
+                rename_deck_view.after(250,reset_done,Deck_Entry)
+
+                decksbuttonpressed()
+    
+    
+        def draw_elements(rename_deck_view):
+            
+            Title = Button(rename_deck_view,
+                          text="Rename Deck",
+                           command=lambda: pressed_edit_deck_name(Deck_Entry))
+            
+            Deck_Entry = Entry(rename_deck_view)
+            Deck_Entry.insert(0,deck)
+                          
+            Title.place(x=0,y=20)
+            Deck_Entry.place(x=0,y=0)
+        
+    
+        draw_elements(rename_deck_view)
     
 def Add_Deck_View():
     
@@ -174,20 +252,36 @@ def Add_Deck_View():
     Add_Deck_view.title("Add Deck")
     Add_Deck_view.geometry("200x50")
 
+    def validation(name):
+        if name.isspace():
+            return 0
+        elif name == "":
+            return 0
+        else:
+            return name 
 
-    def pressed_add_deck(Deck_Entry):
+    def reset_done(button):
+        button.config(text="Add Deck")
+
+    def pressed_add_deck(Deck_Entry,button):
         
         New_Deck = {Deck_Entry.get(): []}
 
-        Data.save_to_file("decks",New_Deck)
-        decks_list_elements()
+        if validation == 0:
+            button.config(text="Empty field")
+            Add_Deck_view.after(250,reset_done,button)
+        else:
+            Data.save_to_file("decks",New_Deck)
+            button.config(text="Added")
+            Add_Deck_view.after(250,reset_done,button)
+            decksbuttonpressed()
 
 
     def draw_elements(Add_Deck_view):
         
         Title = Button(Add_Deck_view,
                       text="Add Deck",
-                       command=lambda: pressed_add_deck(Deck_Entry))
+                       command=lambda: pressed_add_deck(Deck_Entry, Title))
         
         Deck_Entry = Entry(Add_Deck_view)
                       
@@ -196,7 +290,6 @@ def Add_Deck_View():
     
 
     draw_elements(Add_Deck_view)
-
 
 def heatmap():
     return 0
@@ -290,9 +383,14 @@ def Help_View():
 def Card_Types_View():
 
     def edit_card_type(c):
-        pass
+
+        Edit_Card_Type_frame = Toplevel()
+        Edit_Card_Type_frame.title("Edit Card Type")
+        Edit_Card_Type_frame.geometry("500x400")
+
 
     def add_card_type():
+
         Add_Card_Type_frame = Toplevel()
         Add_Card_Type_frame.title("Add Card Type")
         Add_Card_Type_frame.geometry("500x400")
@@ -319,6 +417,8 @@ def Card_Types_View():
             Listbox_of_fields.insert(i,field)
 
             i += 1 
+
+        Listbox_of_fields.pack()
 
 
     Card_Types_frame = Toplevel()
@@ -642,98 +742,36 @@ class Review:
 
         #input interval, ease, repeats
 
+
+        # Interval is number of days until next review
         Interval = card_schedule_data["Interval"]
+        # Ease is the difficulty of the card
         Ease = card_schedule_data["Ease"]
+        # repeats is the consecutive passes
         Repeats = card_schedule_data["Repeats"]
+        # Lapses is the total amount of times the card has been failed
         Lapses = card_schedule_data["Lapses"]
+
         LeechState = card_schedule_data["Leech"]
+
         SuspendState = card_schedule_data["Suspended"]
 
-        # Ease is the difficulty of the card
-        # Interval is number of days until next review
-        # Lapses is the total amount of times the card has been failed
-        # repeats is the consecutive passes
+        new_schedule_data = Scheduler.schedule(Interval,Ease,Repeats,Lapses,LeechState,SuspendState,rating)
         
-
-        if rating == 0:
-            # if the card is marked as a leech (repeatidly failed), then suspend the card so its
-            # ignored in review mode
-
-            if LeechState == True:
-
-                SuspendState = True
-
-            # reset consecutive passes
-
-            New_Repeats = 0
-
-            # increase consecutive fails
-
-            Lapses += 1
-
-            # reset days till card is shown next to 0
-
-            Interval = 0
-
-            # decrease easiness with a lower limit of 1.3
-
-            Ease = max(1.3, Ease - 0.2)
-
-        if rating == 1:
-            # learning steps 
-            
-            if Repeats == 0:
-                Interval = 1
-            elif Repeats == 1:
-                Interval = 3
-            # difficulty is then based on ease
-            else:
-                Interval = round(Interval * Ease)
-
-            New_Repeats = Repeats + 1
-
-            Ease += 0.05
-            
-            # calculate the date at which the card should be reviewed next 
-
-        Leech_Point = 8
-
-        if Lapses >= Leech_Point:
-            LeechState = True
-        else:
-            LeechState = False
-
-        New_Due = datetime.date.today() + datetime.timedelta(days=Interval)
-
-        New_Due = str(New_Due)
-        
-        
-        
-        new_schedule_data = {
-            "Due":New_Due,
-            "Interval":Interval,
-            "Ease":Ease,
-            "Repeats":New_Repeats,
-            "Lapses":Lapses,
-            "Leech":LeechState,
-            "Suspended":SuspendState
-        }
-
-        time_of_day = datetime.datetime.now().strftime("%H:%M:%S")
-        todays_date = datetime.date.today()
-        todays_date = str(todays_date)
-
-        all_stats = Data.get_file_data("stats")
-
-        all_stats.setdefault(todays_date, {})
-        all_stats[todays_date].setdefault(str(self.card), []).append(
-            [time_taken, rating, time_of_day]
-        )
 
         all_schedule_data[str(self.card)] = new_schedule_data
         
         Data.save_to_file("schedule",all_schedule_data)
         Data.save_to_file("stats",all_stats)
+
+        all_stats = Data.get_file_data("stats")
+
+        time_of_day = datetime.datetime.now().strftime("%H:%M:%S")
+        todays_date = datetime.date.today()
+        todays_date = str(todays_date)
+        all_stats.setdefault(todays_date, {})
+        all_stats[todays_date].setdefault(str(self.card), []).append(
+        [time_taken, rating, time_of_day])
 
         self.index += 1
         self.show_card()

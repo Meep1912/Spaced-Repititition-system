@@ -35,6 +35,7 @@ def clear_file(file):
 def delete_in_file(file,key):
     data = get_file_data(file)
     data.pop(key)
+    save_whole_dict(file,data)
 
 def save_whole_dict(file,dictionary):
 
