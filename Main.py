@@ -7,6 +7,7 @@ from datetime import date
 import datetime
 import time as time
 import Scheduler
+import Stats
 
 
 
@@ -34,8 +35,6 @@ def editbuttonpressed():
 def veiwbuttonpressed():
     pass
 def toolsbuttonpressed():
-    pass
-def helpbuttonpressed():
     pass
 def decksbuttonpressed():
     clear_main_frame()
@@ -507,8 +506,11 @@ def decks_window_buttons():
 
     view = Menu(menubar, tearoff=0)
     menubar.add_cascade(label="View",menu=view)
-
+    # browse
     view.add_command(label="View",command=lambda: Card_View.open_card_view_menu())
+
+    # stats
+    view.add_command(label="Stats",command=lambda: Stats.Open_stat_view())
 
     mainwindow.config(menu=menubar)
 
@@ -547,6 +549,8 @@ def decks_list_elements():
         OptionButtons[element].place(x=x_origin+260,y=counter+initial_y_origin)
     
         counter += 30
+
+
 
 # Preview before reveiwing
 
@@ -758,11 +762,10 @@ class Review:
 
         new_schedule_data = Scheduler.schedule(Interval,Ease,Repeats,Lapses,LeechState,SuspendState,rating)
         
-
         all_schedule_data[str(self.card)] = new_schedule_data
         
         Data.save_to_file("schedule",all_schedule_data)
-        Data.save_to_file("stats",all_stats)
+        
 
         all_stats = Data.get_file_data("stats")
 
@@ -773,6 +776,8 @@ class Review:
         all_stats[todays_date].setdefault(str(self.card), []).append(
         [time_taken, rating, time_of_day])
 
+        Data.save_to_file("stats",all_stats)
+        
         self.index += 1
         self.show_card()
 
@@ -787,6 +792,7 @@ class Review:
                         font=(12))
         Title.pack()
         # draw "review complete" screen
+
 
 # Calling functions 
 
