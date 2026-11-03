@@ -1,16 +1,16 @@
 import Data
 from tkinter import *
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
+#import matplotlib.pyplot as plt
+#import numpy as np
+#from matplotlib.backends.backend_tkagg import (
+    #FigureCanvasTkAgg, NavigationToolbar2Tk)
 
 
 
 
 
 def Open_stat_view():
-
+        return 0
         stat_frame = Tk()
         stat_frame.title("Statistics")
         stat_frame.geometry("900x600")
@@ -91,10 +91,26 @@ def Open_stat_view():
         def card_states_pichart(schedule):
 
             # find new, learning, mature and suspended
-
+            new
+            learning
+            relearning
+            mature
+            suspended
             for card in schedule.keys():
-                schedule[card][""]
-
+                interval = schedule[card]["Interval"]
+                if schedule[card]["Due"] == "0"
+                        isnew = True
+                else:
+                        isnew = False
+                        
+                if interval == 0
+                        if isnew:
+                                new += 1
+                        else:
+                                relearning +=1
+                        # check relearning stat
+                elif interval =
+        
 
             x = [1, 2, 3, 4, 5]
 
