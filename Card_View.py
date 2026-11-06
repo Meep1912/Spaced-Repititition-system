@@ -109,7 +109,8 @@ def draw_elements():
     def draw_main_area(card_view):
 
         def draw_filtered_cards(filters):
-
+            
+            
             listbox = Listbox(main_area,
                                 height=20,
                                 width=80,

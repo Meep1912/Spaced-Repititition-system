@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+import customtkinter as ctk
 import Card_View 
 import Add_Card_View
 import Data
@@ -8,12 +9,13 @@ import datetime
 import time as time
 import Scheduler
 import Stats
+from Theme import Theme
 
 
 
 # ------------- Main Window configiration -------------------
 
-mainwindow = Tk()
+mainwindow = ctk.CTk()
 canvas = Canvas()
 mainwindow.title("S.R.S")
 mainwindow.geometry("900x600")
@@ -21,6 +23,8 @@ mainwindow.config(bg="white")
 
 # when press esc draw decks view
 mainwindow.bind("<Escape>",lambda event: decksbuttonpressed())
+
+
 
 # --------------------------------------------------------------------------------
 # ----------------------------- L O G I C ----------------------------------------
@@ -128,7 +132,7 @@ def clear_main_frame():
 
 # ----------------------------- Draw Sub-Menus ------------------------------------
 
-def draw_deck_options(deck):
+def draw_deck_options(deck, font_style):
     
     # main window settings 
 
@@ -138,22 +142,40 @@ def draw_deck_options(deck):
 
 
     Delete_deck_btn = Button(deck_options,
+                    
                     text="Delete Deck",
-                    bg="white",
+
+                    # stlying
+                    
                     relief="flat",
-                    command=lambda: confirmation(deck),
-                    font=(12))
+                    bg=Theme["Button"]["BgColour"],
+                    fg=Theme["Button"]["FontColour"],
+                    font=(Theme["Button"]["Font"],
+                          Theme["Button"]["FontSize"]),
+
+                    # command
+
+                    command=lambda: confirmation(deck))
 
     rename_deck_btn = Button(deck_options,
-                    text="Rename Deck",
-                    bg="white",
+                    
+                    text="Delete Deck",
+
+                    # stlying
+                    
                     relief="flat",
-                    command=lambda: rename_deck(deck),
-                    font=(12))
+                    bg=Theme["Button"]["BgColour"],
+                    fg=Theme["Button"]["FontColour"],
+                    font=(Theme["Button"]["Font"],
+                          Theme["Button"]["FontSize"]),
+
+                    # command
+
+                    command=lambda: rename_deck(deck))
 
     def confirmation(deck):
         cards = len(Data.get_file_data("decks")[deck])
-        result = messagebox.askokcancel("Deleting deck with "+str(cards)+" cards","are you you want to delete this deck:"+deck,icon="warning")
+        result = messagebox.askokcancel("Deleting deck with "+str(cards)+" cards","are you you want to delete this deck:"+deck,icon="warning",font=font_)
         if result:
             Delete_Deck(deck)
             decksbuttonpressed()
@@ -231,20 +253,41 @@ def rename_deck(deck):
     
         def draw_elements(rename_deck_view):
             
-            Title = Button(rename_deck_view,
-                          text="Rename Deck",
-                           command=lambda: pressed_edit_deck_name(Deck_Entry))
+            Done_Button = Button(rename_deck_view,
+                    
+                    text="Delete Deck",
+
+                    # stlying
+                    
+                    relief="flat",
+                    bg=Theme["Button"]["BgColur"],
+                    fg=Theme["Button"]["FontColour"],
+                    font=(Theme["Button"]["Font"],
+                          Theme["Button"]["FontSize"]),
+
+                    # command
+
+                    command=lambda: pressed_edit_deck_name(Deck_Entry))
+
+            Deck_Entry = Entry(rename_deck_view,
+                    
+                    # stlying
+                    
+                    relief="flat",
+                    bg=Theme["Entry"]["BgColour"],
+                    fg=Theme["Entry"]["FontColour"],
+                    font=(Theme["Entry"]["Font"],
+                          Theme["Entry"]["FontSize"]))
             
-            Deck_Entry = Entry(rename_deck_view)
-            Deck_Entry.insert(0,deck)
-                          
-            Title.place(x=0,y=20)
+            
+            Deck_Entry.insert(0,deck)         
+            Done_Button.place(x=0,y=20)
             Deck_Entry.place(x=0,y=0)
         
     
         draw_elements(rename_deck_view)
     
-def Add_Deck_View():
+def Add_Deck_View(font_style):
     
     # main window settings 
     Add_Deck_view = Toplevel()
@@ -336,15 +379,35 @@ def Help_View():
     Help_view_frame.geometry("500x400")
     def Draw_Elements():
 
-        text = Text(Help_view_frame, wrap="word",width=50,height=10)
+        stlyling = Theme["Help"]
+
+        text = Text(Help_view_frame,
+                     wrap="word",
+                     width=50,
+                     height=10,
+                     # styling
+                     font=(stlyling["Body"]["Font"],stlyling["Body"]["FontSize"]))
+        
         text.pack()
+
         scroll = Scrollbar(Help_view_frame, command=text.yview)
         text.config(yscrollcommand=scroll.set)
         scroll.pack(side="right",fill="y")
         text.pack(side="left",fill="both",expand=True)
 
-        text.tag_config("link",foreground="blue",underline=True)
-        text.tag_config("heading",font=("Arial",16,"bold"))
+        
+
+        text.tag_config("link",
+
+                        # styling
+                        foreground=stlyling["Link"]["Foreground"],
+                        underline=stlyling["Link"]["Underline"],
+                        font=(stlyling["Link"]["Font"],stlyling["Link"]["FontSize"]))
+        
+        text.tag_config("heading",
+
+                        # styling
+                        font=(stlyling["Heading"]["Font"],stlyling["Heading"]["FontSize"]))
 
         sections = {
             "intro": ("Introduction", "S.R.S stands for Spaced Repitition System this software aims to help you forget less, how does it do that? It tries to predict when you are about to forget something and then reminds you at that estimated time."),
@@ -402,11 +465,17 @@ def Card_Types_View():
         add_type_scroll_bar = Scrollbar(Add_Card_Type_frame)
         add_type_scroll_bar.pack(side=RIGHT,fill=Y)
 
+        styling = Theme["Listbox"]
         Listbox_of_fields = Listbox(Add_Card_Type_frame,
                                     height=20,
                                     width=60,
-                                    bg="white",
-                                    activestyle="dotbox",
+
+                                    # styling
+                                    bg=styling["BgColour"],
+                                    activestyle=styling["ActiveStyle"],
+                                    font=(styling["FontSize"],styling["Font"]),
+
+                                    # command
                                     yscrollcommand=add_type_scroll_bar.set)
                                     
         i = 0
@@ -434,11 +503,18 @@ def Card_Types_View():
         scroll_bar = Scrollbar(Card_Types_frame)
         scroll_bar.pack(side=RIGHT,fill=Y)
 
+        styling = Theme["Listbox"]
+                 
         Listbox_of_types = Listbox(Card_Types_frame,
                                     height=20,
                                     width=60,
-                                    bg="white",
-                                    activestyle="dotbox",
+
+                                    # styling
+                                    bg=styling["BgColour"],
+                                    activestyle=styling["ActiveStyle"],
+                                    font=(styling["FontSize"],styling["Font"]),
+
+                                    # command
                                     yscrollcommand=scroll_bar.set)
 
         i = 0
@@ -462,58 +538,58 @@ def Card_Types_View():
 
 # Draw menu bar at the top of the screen
 
-def decks_window_buttons():
-    menubar = Menu(mainwindow)
+def decks_window_buttons(mainwindow):
+    def build_menubar(mainwindow):
 
-    # --- File ---
-    file = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="File",menu=file)
+        styling = Theme["Menu"]
+        menubar = Menu(mainwindow)
 
-    file.add_command(label="Import",command=None)
-    file.add_command(label="Export",command=None)
-                            
-    # --- Edit ---
+        def make_menu(label):
+            
+            # Styling 
+            m = Menu(menubar, tearoff=0,
+                    font=(styling["Font"], styling["FontSize"]),
+                    foreground=styling["FontColour"],
+                    background=styling["BackGround"],
+                    activebackground=styling["ActiveBackGround"],
+                    activeforeground=styling["ActiveFontColour"])
+            menubar.add_cascade(label=label, menu=m)
+            return m
 
-    edit = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Edit",menu=edit)
+        # --- File ---
+        file_menu = make_menu("File")
+        file_menu.add_command(label="Import", command=None)
+        file_menu.add_command(label="Export", command=None)
 
-    edit.add_command(label="Edit",command=None)
-    edit.add_command(label="Card Types",command=lambda: Card_Types_View())
+        # --- Edit ---
+        edit_menu = make_menu("Edit")
+        edit_menu.add_command(label="Edit", command=None)
+        edit_menu.add_command(label="Card Types", command=lambda: Card_Types_View())
 
-    # --- Help ---
+        # --- Help ---
+        help_menu = make_menu("Help")
+        help_menu.add_command(label="Help", command=lambda: Help_View())
 
-    help = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Help",menu=help)
+        # --- Decks ---
+        decks_menu = make_menu("Decks")
+        decks_menu.add_command(label="Decks", command=lambda: decksbuttonpressed())
+        decks_menu.add_command(label="Add Deck", command=lambda: Add_Deck_View())
 
-    help.add_command(label="Help",command=lambda: Help_View())
+        # --- Add ---
+        add_menu = make_menu("Add")
+        add_menu.add_command(label="Add Card",
+                            command=lambda: Add_Card_View.open_add_card_menu())
 
-    # --- Decks --- 
+        # --- View ---
+        view_menu = make_menu("View")
+        view_menu.add_command(label="View",
+                            command=lambda: Card_View.open_card_view_menu())
+        view_menu.add_command(label="Stats",
+                            command=lambda: Stats.Open_stat_view(mainwindow))
 
-    decks = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Decks",menu=decks)
+        mainwindow.config(menu=menubar)
 
-    decks.add_command(label="Decks",command=lambda:decksbuttonpressed())
-    decks.add_command(label="Add Deck",command=lambda:Add_Deck_View())
-
-    # --- Add --- 
-
-    add  = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Add",menu=add)
-
-    add.add_command(label="Add Card",command=lambda: Add_Card_View.open_add_card_menu())
-
-    # ---View --- 
-
-    view = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="View",menu=view)
-    # browse
-    view.add_command(label="View",command=lambda: Card_View.open_card_view_menu())
-
-    # stats
-    view.add_command(label="Stats",command=lambda: Stats.Open_stat_view())
-
-    mainwindow.config(menu=menubar)
-
+    build_menubar(mainwindow)
 # List all the decks
 
 def decks_list_elements():
@@ -524,31 +600,55 @@ def decks_list_elements():
 
     for deck in deck_list_from_file:
 
-        M_Btn = Button(mainwindow,
-                     text=deck,
-                     command=lambda d=deck: draw_deck_overveiw(d),
-                     relief="flat",
-                    width=35)
+        m_btn = Button(mainwindow,
+                    
+                    text=deck,
 
-        Option_Btn = Button(mainwindow,
-                            text=". . . ",
-                            command=lambda d=deck: draw_deck_options(d),
-                            relief="flat",
-                            width=2)
+                    # stlying
+                    
+                    width=35,
+                    relief="flat",
+                    bg=Theme["Button"]["BgColour"],
+                    fg=Theme["Button"]["FontColour"],
+                    font=(Theme["Button"]["Font"],
+                          Theme["Button"]["FontSize"]),
+
+                    # command
+
+                    command=lambda d=deck: draw_deck_overveiw(d))
+
+        option_btn = Button(mainwindow,
+                    
+                    text=". . .",
+
+                    # stlying
+                    
+                    width=2,
+                    relief="flat",
+                    bg=Theme["Button"]["BgColour"],
+                    fg=Theme["Button"]["FontColour"],
+                    font=(Theme["Button"]["Font"],
+                          Theme["Button"]["FontSize"]),
+
+                    # command
+
+                    command=lambda d=deck: draw_deck_options(d))
+
+       
     
-        MainButtons.append(M_Btn)
-        OptionButtons.append(Option_Btn)
+        MainButtons.append(m_btn)
+        OptionButtons.append(option_btn)
     
     x_origin = 300
     initial_y_origin = 100
     counter = 0
 
     for element in range(0,len(MainButtons)):
-
+        # draw all of users decks
         MainButtons[element].place(x=x_origin,y=counter+initial_y_origin)
         OptionButtons[element].place(x=x_origin+260,y=counter+initial_y_origin)
     
-        counter += 30
+        counter += 45
 
 
 
@@ -574,31 +674,56 @@ def draw_deck_overveiw(deck):
 
     brand_new_cards_lbl = Label(mainwindow,
                                     text=("New Cards: "+str(len(brand_new_cards))),
-                                    font=(100),
-                                    bg="white",
-                                    )
+
+                                    # stlying
+
+                                    relief="flat",
+                                    bg=Theme["TitleLabel"]["BgColour"],
+                                    fg=Theme["TitleLabel"]["FontColour"],
+                                    font=(Theme["TitleLabel"]["Font"],
+                                        Theme["TitleLabel"]["FontSize"]),)
     
     cards_to_review_lbl = Label(mainwindow,
                                     text=("Cards To Reveiw: "+str(len(cards_to_review))),
-                                    font=(100),
-                                    bg="white",
-                                    )
+                                    
+                                    # stlying
+                                    
+                                    relief="flat",
+                                    bg=Theme["TitleLabel"]["BgColour"],
+                                    fg=Theme["TitleLabel"]["FontColour"],
+                                    font=(Theme["TitleLabel"]["Font"],
+                                        Theme["TitleLabel"]["FontSize"]),)
     
     current_queue_item = 0
     start_review_button = Button(mainwindow,
-                                    height=5,
-                                    width=30,
-                                    text="REVIEW ! !",
-                                    command=lambda: Review(queue_of_cards,deck).show_card(),
-                                    bg="white")
+
+                                text="REVIEW ! !",
+                                    
+                                # stlying
+
+                                height=5,
+                                width=30,
+                                relief="flat",
+                                bg=Theme["TitleLabel"]["BgColour"],
+                                fg=Theme["TitleLabel"]["FontColour"],
+                                font=(Theme["TitleLabel"]["Font"],
+                                    Theme["TitleLabel"]["FontSize"]),
+
+                                # command
+                                      
+                                command=lambda: Review(queue_of_cards,deck).show_card(),)
+    
     deck_label = Label(mainwindow,
                        text=deck,
-                       font=(500),
-                       height=2,
-                       width=10,
-                       relief="flat",
-                       underline=100,
-                       bg="white")
+
+        
+                        # stlying
+                                    
+                        relief="flat",
+                        bg=Theme["TitleLabel"]["BgColour"],
+                        fg=Theme["TitleLabel"]["FontColour"],
+                        font=(Theme["TitleLabel"]["Font"],
+                            Theme["TitleLabel"]["FontSize"]),)
 
     # ----------placing elements---------------
 
@@ -659,16 +784,40 @@ class Review:
         self.start = time.time()
         #---------- Load elements ----------------
 
+
+        # styling
+
+        styling = Theme["TitleLabel"]
+
         front_field = Message(mainwindow, 
-              text=self.front, 
-              font=(100), 
-              background="white")
+              text=self.front,
+                
+              # stlying
+                                    
+              relief="flat",
+              bg=styling["BgColour"],
+              fg=styling["FontColour"],
+              font=(styling["Font"],
+                    
+              styling["FontSize"]))
         
         Flip_btn = Button(mainwindow,
                 text="Reveal", 
-                command=self.draw_back,
+
+                
+
+                # styling
                 width=10,
-                height=3)
+                height=3,
+                relief="flat",
+                bg=Theme["Button"]["BgColour"],
+                fg=Theme["Button"]["FontColour"],
+                font=(Theme["Button"]["Font"],
+                    Theme["Button"]["FontSize"]),
+                    
+                # command 
+                
+                command=self.draw_back,)
         
         #---------- Draw elements ----------------
         front_field.pack(anchor="center")
@@ -694,21 +843,45 @@ class Review:
 
         buttons = Frame(mainwindow, bg= "white")
 
-        back_field = Message(mainwindow,
-                           text=self.back, 
-                           font=(100), 
-                           background="white")
+        styling = Theme["TitleLabel"]
+
+        back_field = Message(mainwindow, 
+              text=self.back,
+        
+              # stlying
+                                    
+              relief="flat",
+              bg=styling["BgColour"],
+              fg=styling["FontColour"],
+              font=(styling["Font"],    
+              styling["FontSize"]))
 
         pass_btn = Button(buttons, 
-                          text="Pass", 
-                          width=7, 
-                          height=3,
+                          
+                        text="Pass", 
+
+                        # styling
+                        relief="flat",
+                        bg=Theme["Button"]["BgColour"],
+                        fg=Theme["Button"]["FontColour"],
+                        font=(Theme["Button"]["Font"],
+                        Theme["Button"]["FontSize"]),
+
+                        # command
                           command=lambda: self.rate(1))
         
         fail_btn = Button(buttons, 
-                          text="Fail", 
-                          width=7, 
-                          height=3,
+                          
+                        text="Fail", 
+
+                        # styling
+                        relief="flat",
+                        bg=Theme["Button"]["BgColour"],
+                        fg=Theme["Button"]["FontColour"],
+                        font=(Theme["Button"]["Font"],
+                        Theme["Button"]["FontSize"]),
+
+                        # command
                           command=lambda: self.rate(0))
 
         # ------------------ TEMP ------------------
@@ -784,24 +957,29 @@ class Review:
     def finish(self):
 
         clear_main_frame()
-        
+
+        styling = Theme["TitleLabel"]
         Title = Label(mainwindow,
                         text="Complete",
-                        bg="white",
+
+                        # styling
                         relief="flat",
-                        font=(12))
+                        bg=styling["BgColour"],
+                        fg=styling["FontColour"],
+                        font=(styling["Font"],
+                        styling["FontSize"]))
         Title.pack()
         # draw "review complete" screen
 
 
 # Calling functions 
 
-def main():
+def main(mainwindow):
     Data.load_files_startup()
-    decks_window_buttons()
+    decks_window_buttons(mainwindow)
     decks_list_elements()
     heatmap()
     mainwindow.mainloop()
 
 
-main()
+main(mainwindow)

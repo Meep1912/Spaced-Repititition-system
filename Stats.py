@@ -5,16 +5,27 @@ import numpy as np
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg)
 import datetime
+import customtkinter as ctk
 
 
 
 
-def Open_stat_view():
-        
-        stat_frame = Tk()
-        stat_frame.title("Statistics")
-        stat_frame.geometry("900x600")
+def Open_stat_view(mainwindow):
 
+
+        # window config (Scrollable)
+        root = ctk.CTkToplevel(mainwindow)
+        root.title("Statistics")
+        height_ = 500
+        width_ = 600
+        root.geometry(str(height_) + "x" + str(width_))
+        stat_view_scrollable = ctk.CTkScrollableFrame(root, width=width_-50,height=height_-50)
+        stat_view_scrollable.pack(fill="both", expand=True, padx=10,pady=10)
+
+        # focus window
+        root.after(100, root.focus)
+
+        # fetch data
         stats = Data.get_file_data("stats")
         schedule = Data.get_file_data("schedule")
 
@@ -40,14 +51,14 @@ def Open_stat_view():
             reviews_per_day(stats,timeframe)
 
 
-        timeframe_scale = Scale(stat_frame, 
+        timeframe_scale = Scale(stat_view_scrollable, 
                                 from_=0, 
                                 to=2, 
                                 orient="horizontal",
                                 command=timeframe_changed)
         timeframe_scale.pack(padx=5, pady=5)
         
-        timeframe_lbl= Label(stat_frame, text="0")
+        timeframe_lbl= Label(stat_view_scrollable, text="0")
         timeframe_lbl.pack(padx=2, pady=2)
 
         # ------------- CHANGE THE TIME FRAME END -------------
@@ -91,7 +102,7 @@ def Open_stat_view():
                 ax.bar(x, y, width=1, edgecolor="white", linewidth=0.7)
                 ax.set_title("Reviews per day")
                 fig.autofmt_xdate()
-                canvas = FigureCanvasTkAgg(fig, master=stat_frame)  # A tk.DrawingArea.
+                canvas = FigureCanvasTkAgg(fig, master=stat_view_scrollable)  # A tk.DrawingArea.
                 canvas.draw()
                 canvas.get_tk_widget().pack(side=TOP,expand=True, fill="x")
 
@@ -190,7 +201,7 @@ def Open_stat_view():
             ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
                    ylim=(0, 8), yticks=np.arange(1, 8))
 
-            card_states_pichart_canvas = FigureCanvasTkAgg(fig, master=stat_frame)  # A tk.DrawingArea.
+            card_states_pichart_canvas = FigureCanvasTkAgg(fig, master=stat_view_scrollable)  # A tk.DrawingArea.
             card_states_pichart_canvas.draw()
             card_states_pichart_canvas.get_tk_widget().pack(side=TOP,expand=True, fill="x")
 
@@ -198,7 +209,3 @@ def Open_stat_view():
         reviews_per_day(stats, timeframe)
         card_states_pichart(schedule, timeframe)
 
-Data.load_files_startup()
-Open_stat_view()
-
-mainloop()

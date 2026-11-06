@@ -486,29 +486,29 @@
         "Suspended": false
     },
     "1793629761950481600": {
-        "Due": "0",
+        "Due": "2026-11-07",
         "Interval": 1,
-        "Ease": 2.5,
-        "Repeats": 0,
-        "Lapses": 0,
+        "Ease": 2.1499999999999995,
+        "Repeats": 1,
+        "Lapses": 2,
         "Leech": false,
         "Suspended": false
     },
     "1793629762127800700": {
-        "Due": "0",
+        "Due": "2026-11-07",
         "Interval": 1,
-        "Ease": 2.5,
-        "Repeats": 0,
-        "Lapses": 0,
+        "Ease": 2.1499999999999995,
+        "Repeats": 1,
+        "Lapses": 2,
         "Leech": false,
         "Suspended": false
     },
     "1793629762372611100": {
-        "Due": "0",
+        "Due": "2026-11-07",
         "Interval": 1,
-        "Ease": 2.5,
-        "Repeats": 0,
-        "Lapses": 0,
+        "Ease": 2.3499999999999996,
+        "Repeats": 1,
+        "Lapses": 1,
         "Leech": false,
         "Suspended": false
     },
