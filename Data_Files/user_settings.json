@@ -1,0 +1,9 @@
+{
+    "font_type": "Arial",
+    "theme": "Brilliant_White",
+    "leechpoint": 8,
+    "suspend_leech": 0,
+    "learning_steps": "1D, 3D",
+    "no_review_buttons": 0,
+    "no_interval_in_review": 0
+}

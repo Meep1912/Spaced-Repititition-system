@@ -646,5 +646,23 @@
         "Lapses": 1,
         "Leech": false,
         "Suspended": false
+    },
+    "1794131475689651300": {
+        "Due": "2026-11-09",
+        "Interval": 1,
+        "Ease": 2.3499999999999996,
+        "Repeats": 1,
+        "Lapses": 1,
+        "Leech": false,
+        "Suspended": false
+    },
+    "1794131986416445700": {
+        "Due": "2026-11-09",
+        "Interval": 1,
+        "Ease": 2.55,
+        "Repeats": 1,
+        "Lapses": 0,
+        "Leech": false,
+        "Suspended": false
     }
 }

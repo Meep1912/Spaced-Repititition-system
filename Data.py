@@ -8,7 +8,8 @@ filepaths = {
      "schedule":"Data_Files/schedule.json",
      "decks":"Data_Files/decks.json",
      "stats":"Data_Files/stats.json",
-     "card_types":"Data_Files/card_types.json"
+     "card_types":"Data_Files/card_types.json",
+     "user_settings":"Data_Files/user_settings.json",
 }
 # make a files dictionary which holds card data and schedule data
 
@@ -20,8 +21,23 @@ def load_files_startup():
         with open(filepaths[file], "r",encoding="utf-8") as f:
             files[file] = json.load(f)
 
+
+
+def get_length_of_dict(filename):
+
+    global files
+
+    return(files[filename].len())
     
 
+def get_keys_in_dict(filename):
+
+    global files
+
+    keys = []    
+    for file in files[filename].keys():
+        keys.append(file)
+    return keys
 
 
 def get_file_data(filename):

@@ -1,21 +1,27 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 import customtkinter as ctk
-import Card_View 
-import Add_Card_View
-import Data
+
 from datetime import date
 import datetime
 import time as time
+
+import Card_View 
+import Add_Card_View
+import Data
 import Scheduler
 import Stats
-from Theme import Theme
+import User_Settings_View
+
+from Theme import theme
+from Theme import configure_styles
 
 
 
 # ------------- Main Window configiration -------------------
 
-mainwindow = ctk.CTk()
+mainwindow = Tk()
 canvas = Canvas()
 mainwindow.title("S.R.S")
 mainwindow.geometry("900x600")
@@ -132,46 +138,89 @@ def clear_main_frame():
 
 # ----------------------------- Draw Sub-Menus ------------------------------------
 
-def draw_deck_options(deck, font_style):
-    
-    # main window settings 
+def draw_deck_options(deck):
 
-    deck_options = Toplevel()
-    deck_options.title((deck + " options"))
-    deck_options.geometry("600x400")
+        
+    def rename_deck(deck):
+        
+            # main window settings 
+            rename_deck_view = Toplevel()
+            rename_deck_view.title("Rename Deck")
+            rename_deck_view.geometry("200x50")
+        
+            def validation(newname,originalname):
+                decks_Data = Data.get_file_data("decks")
+                if newname.isspace():
+                    return 0
+                elif newname == "":
+                    return 0
+                elif newname == originalname:
+                    return 1
+                elif newname in decks_Data.keys() and newname != originalname:
+                    return 2
+                else:
+                    return newname 
+        
+            def reset_done(Deck_Entry):
+                Deck_Entry.config(text="Rename Deck")
+            def pressed_edit_deck_name(Deck_Entry):
+                
+                New_Deck_Name = Deck_Entry.get()
+        
+                if validation(New_Deck_Name,deck) == 0:
+                    Deck_Entry.config(text="Empty field")
+                    rename_deck_view.after(250,reset_done,Deck_Entry)
+                if validation(New_Deck_Name,deck) == 1:
+                    Deck_Entry.config(text="Unchanged")
+                    rename_deck_view.after(250,reset_done,Deck_Entry)
+                if validation(New_Deck_Name,deck) == 2:
+                    Deck_Entry.config(text="Deck already exists")
+                    rename_deck_view.after(250,reset_done,Deck_Entry)
+                else:
+                    decks = Data.get_file_data("decks")
+                    decks[New_Deck_Name] = decks.pop(deck)
+                    Data.save_whole_dict("decks",deck)
+                    Deck_Entry.config(text="Added")
+                    rename_deck_view.after(250,reset_done,Deck_Entry)
 
+                    decksbuttonpressed()
+        
+        
+            def draw_elements(rename_deck_view):
+                
+                Done_Button = Button(rename_deck_view,
+                        
+                        text="Delete Deck",
 
-    Delete_deck_btn = Button(deck_options,
-                    
-                    text="Delete Deck",
+                        # stlying
+                        
+                        relief="flat",
+                        bg=theme["Button"]["BgColur"],
+                        fg=theme["Button"]["FontColour"],
+                        font=(theme["Button"]["Font"],
+                            theme["Button"]["FontSize"]),
 
-                    # stlying
-                    
-                    relief="flat",
-                    bg=Theme["Button"]["BgColour"],
-                    fg=Theme["Button"]["FontColour"],
-                    font=(Theme["Button"]["Font"],
-                          Theme["Button"]["FontSize"]),
+                        # command
 
-                    # command
+                        command=lambda: pressed_edit_deck_name(Deck_Entry))
 
-                    command=lambda: confirmation(deck))
-
-    rename_deck_btn = Button(deck_options,
-                    
-                    text="Delete Deck",
-
-                    # stlying
-                    
-                    relief="flat",
-                    bg=Theme["Button"]["BgColour"],
-                    fg=Theme["Button"]["FontColour"],
-                    font=(Theme["Button"]["Font"],
-                          Theme["Button"]["FontSize"]),
-
-                    # command
-
-                    command=lambda: rename_deck(deck))
+                Deck_Entry = Entry(rename_deck_view,
+                        
+                        # stlying
+                        
+                        relief="flat",
+                        bg=theme["Entry"]["BgColour"],
+                        fg=theme["Entry"]["FontColour"],
+                        font=(theme["Entry"]["Font"],
+                            theme["Entry"]["FontSize"]))
+                
+                
+                Deck_Entry.insert(0,deck)         
+                Done_Button.place(x=0,y=20)
+                Deck_Entry.place(x=0,y=0)
+            
+        
+            draw_elements(rename_deck_view)
 
     def confirmation(deck):
         cards = len(Data.get_file_data("decks")[deck])
@@ -201,93 +250,50 @@ def draw_deck_options(deck, font_style):
         Data.save_whole_dict("schedule",schedule)
         
 
-    Delete_deck_btn.pack()
+    # main window settings 
 
-    rename_deck_btn.pack()
-    
+    deck_options = Toplevel()
+    deck_options.title((deck + " options"))
+    deck_options.geometry("600x400")
 
-def rename_deck(deck):
-    
-        # main window settings 
-        rename_deck_view = Toplevel()
-        rename_deck_view.title("Rename Deck")
-        rename_deck_view.geometry("200x50")
-    
-        def validation(newname,originalname):
-            decks_Data = Data.get_file_data("decks")
-            if newname.isspace():
-                return 0
-            elif newname == "":
-                return 0
-            elif newname == originalname:
-                return 1
-            elif newname in decks_Data.keys() and newname != originalname:
-                return 2
-            else:
-                return newname 
-    
-        def reset_done(Deck_Entry):
-            Deck_Entry.config(text="Rename Deck")
-        def pressed_edit_deck_name(Deck_Entry):
-            
-            New_Deck_Name = Deck_Entry.get()
-    
-            if validation(New_Deck_Name,deck) == 0:
-                Deck_Entry.config(text="Empty field")
-                rename_deck_view.after(250,reset_done,Deck_Entry)
-            if validation(New_Deck_Name,deck) == 1:
-                Deck_Entry.config(text="Unchanged")
-                rename_deck_view.after(250,reset_done,Deck_Entry)
-            if validation(New_Deck_Name,deck) == 2:
-                Deck_Entry.config(text="Deck already exists")
-                rename_deck_view.after(250,reset_done,Deck_Entry)
-            else:
-                decks = Data.get_file_data("decks")
-                decks[New_Deck_Name] = decks.pop(deck)
-                Data.save_whole_dict("decks",deck)
-                Deck_Entry.config(text="Added")
-                rename_deck_view.after(250,reset_done,Deck_Entry)
 
-                decksbuttonpressed()
-    
-    
-        def draw_elements(rename_deck_view):
-            
-            Done_Button = Button(rename_deck_view,
+    Delete_deck_btn = Button(deck_options,
                     
                     text="Delete Deck",
 
                     # stlying
                     
                     relief="flat",
-                    bg=Theme["Button"]["BgColur"],
-                    fg=Theme["Button"]["FontColour"],
-                    font=(Theme["Button"]["Font"],
-                          Theme["Button"]["FontSize"]),
+                    bg=theme["Button"]["BgColour"],
+                    fg=theme["Button"]["FontColour"],
+                    font=(theme["Button"]["Font"],
+                          theme["Button"]["FontSize"]),
 
                     # command
 
-                    command=lambda: pressed_edit_deck_name(Deck_Entry))
+                    command=lambda: confirmation(deck))
 
-            Deck_Entry = Entry(rename_deck_view,
+    rename_deck_btn = Button(deck_options,
                     
+                    text="Delete Deck",
+
                     # stlying
                     
                     relief="flat",
-                    bg=Theme["Entry"]["BgColour"],
-                    fg=Theme["Entry"]["FontColour"],
-                    font=(Theme["Entry"]["Font"],
-                          Theme["Entry"]["FontSize"]))
-            
-            
-            Deck_Entry.insert(0,deck)         
-            Done_Button.place(x=0,y=20)
-            Deck_Entry.place(x=0,y=0)
-        
-    
-        draw_elements(rename_deck_view)
-    
-def Add_Deck_View(font_style):
+                    bg=theme["Button"]["BgColour"],
+                    fg=theme["Button"]["FontColour"],
+                    font=(theme["Button"]["Font"],
+                          theme["Button"]["FontSize"]),
+
+                    # command
+
+                    command=lambda: rename_deck(deck))
+
+    Delete_deck_btn.pack()
+
+    rename_deck_btn.pack()
+
+def Add_Deck_View():
     
     # main window settings 
     Add_Deck_view = Toplevel()
@@ -379,7 +385,7 @@ def Help_View():
     Help_view_frame.geometry("500x400")
     def Draw_Elements():
 
-        stlyling = Theme["Help"]
+        stlyling = theme["Help"]
 
         text = Text(Help_view_frame,
                      wrap="word",
@@ -465,7 +471,7 @@ def Card_Types_View():
         add_type_scroll_bar = Scrollbar(Add_Card_Type_frame)
         add_type_scroll_bar.pack(side=RIGHT,fill=Y)
 
-        styling = Theme["Listbox"]
+        styling = theme["ListBox"]
         Listbox_of_fields = Listbox(Add_Card_Type_frame,
                                     height=20,
                                     width=60,
@@ -503,7 +509,7 @@ def Card_Types_View():
         scroll_bar = Scrollbar(Card_Types_frame)
         scroll_bar.pack(side=RIGHT,fill=Y)
 
-        styling = Theme["Listbox"]
+        styling = theme["ListBox"]
                  
         Listbox_of_types = Listbox(Card_Types_frame,
                                     height=20,
@@ -512,7 +518,7 @@ def Card_Types_View():
                                     # styling
                                     bg=styling["BgColour"],
                                     activestyle=styling["ActiveStyle"],
-                                    font=(styling["FontSize"],styling["Font"]),
+                                    font=(styling["Font"],styling["FontSize"]),
 
                                     # command
                                     yscrollcommand=scroll_bar.set)
@@ -538,21 +544,15 @@ def Card_Types_View():
 
 # Draw menu bar at the top of the screen
 
-def decks_window_buttons(mainwindow):
-    def build_menubar(mainwindow):
+def decks_window_buttons(mainwindow, selected_theme):
 
-        styling = Theme["Menu"]
+    def build_menubar(mainwindow, selected_theme):
         menubar = Menu(mainwindow)
 
         def make_menu(label):
             
             # Styling 
-            m = Menu(menubar, tearoff=0,
-                    font=(styling["Font"], styling["FontSize"]),
-                    foreground=styling["FontColour"],
-                    background=styling["BackGround"],
-                    activebackground=styling["ActiveBackGround"],
-                    activeforeground=styling["ActiveFontColour"])
+            m = Menu(menubar, tearoff=0)
             menubar.add_cascade(label=label, menu=m)
             return m
 
@@ -563,8 +563,8 @@ def decks_window_buttons(mainwindow):
 
         # --- Edit ---
         edit_menu = make_menu("Edit")
-        edit_menu.add_command(label="Edit", command=None)
         edit_menu.add_command(label="Card Types", command=lambda: Card_Types_View())
+        edit_menu.add_command(label="Preferences",command=lambda: User_Settings_View.Draw_User_Settings_View(mainwindow,selected_theme))
 
         # --- Help ---
         help_menu = make_menu("Help")
@@ -589,7 +589,7 @@ def decks_window_buttons(mainwindow):
 
         mainwindow.config(menu=menubar)
 
-    build_menubar(mainwindow)
+    build_menubar(mainwindow, selected_theme)
 # List all the decks
 
 def decks_list_elements():
@@ -600,42 +600,18 @@ def decks_list_elements():
 
     for deck in deck_list_from_file:
 
-        m_btn = Button(mainwindow,
-                    
+        m_btn = ttk.Button(mainwindow,
                     text=deck,
-
-                    # stlying
-                    
                     width=35,
-                    relief="flat",
-                    bg=Theme["Button"]["BgColour"],
-                    fg=Theme["Button"]["FontColour"],
-                    font=(Theme["Button"]["Font"],
-                          Theme["Button"]["FontSize"]),
-
-                    # command
-
+                    style="Body.TButton",
                     command=lambda d=deck: draw_deck_overveiw(d))
 
-        option_btn = Button(mainwindow,
-                    
+        option_btn = ttk.Button(mainwindow,
                     text=". . .",
-
-                    # stlying
-                    
                     width=2,
-                    relief="flat",
-                    bg=Theme["Button"]["BgColour"],
-                    fg=Theme["Button"]["FontColour"],
-                    font=(Theme["Button"]["Font"],
-                          Theme["Button"]["FontSize"]),
-
-                    # command
-
+                    style="Body.TButton",
                     command=lambda d=deck: draw_deck_options(d))
 
-       
-    
         MainButtons.append(m_btn)
         OptionButtons.append(option_btn)
     
@@ -672,58 +648,22 @@ def draw_deck_overveiw(deck):
     # -----------Elements instantination---------------
     
 
-    brand_new_cards_lbl = Label(mainwindow,
+    brand_new_cards_lbl = ttk.Label(mainwindow,
                                     text=("New Cards: "+str(len(brand_new_cards))),
-
-                                    # stlying
-
-                                    relief="flat",
-                                    bg=Theme["TitleLabel"]["BgColour"],
-                                    fg=Theme["TitleLabel"]["FontColour"],
-                                    font=(Theme["TitleLabel"]["Font"],
-                                        Theme["TitleLabel"]["FontSize"]),)
+                                    style="Body.TLabel")
     
-    cards_to_review_lbl = Label(mainwindow,
+    cards_to_review_lbl = ttk.Label(mainwindow,
                                     text=("Cards To Reveiw: "+str(len(cards_to_review))),
-                                    
-                                    # stlying
-                                    
-                                    relief="flat",
-                                    bg=Theme["TitleLabel"]["BgColour"],
-                                    fg=Theme["TitleLabel"]["FontColour"],
-                                    font=(Theme["TitleLabel"]["Font"],
-                                        Theme["TitleLabel"]["FontSize"]),)
+                                    style="Body.TLabel")
     
-    current_queue_item = 0
-    start_review_button = Button(mainwindow,
-
+    start_review_button = ttk.Button(mainwindow,
                                 text="REVIEW ! !",
-                                    
-                                # stlying
-
-                                height=5,
-                                width=30,
-                                relief="flat",
-                                bg=Theme["TitleLabel"]["BgColour"],
-                                fg=Theme["TitleLabel"]["FontColour"],
-                                font=(Theme["TitleLabel"]["Font"],
-                                    Theme["TitleLabel"]["FontSize"]),
-
-                                # command
-                                      
+                                style="Body.TButton",
                                 command=lambda: Review(queue_of_cards,deck).show_card(),)
     
-    deck_label = Label(mainwindow,
+    deck_label = ttk.Label(mainwindow,
                        text=deck,
-
-        
-                        # stlying
-                                    
-                        relief="flat",
-                        bg=Theme["TitleLabel"]["BgColour"],
-                        fg=Theme["TitleLabel"]["FontColour"],
-                        font=(Theme["TitleLabel"]["Font"],
-                            Theme["TitleLabel"]["FontSize"]),)
+                       style="Body.TLabel")
 
     # ----------placing elements---------------
 
@@ -787,40 +727,26 @@ class Review:
 
         # styling
 
-        styling = Theme["TitleLabel"]
 
-        front_field = Message(mainwindow, 
+
+        front_field_frame = ttk.Frame(mainwindow, width = 300, height = 100)
+        front_field_frame.pack_propagate(False)
+        front_field = ttk.Label(front_field_frame, 
               text=self.front,
-                
-              # stlying
-                                    
-              relief="flat",
-              bg=styling["BgColour"],
-              fg=styling["FontColour"],
-              font=(styling["Font"],
-                    
-              styling["FontSize"]))
+              style="Body.TLabel",
+              justify="center",
+              anchor="center",
+              wraplength=400)
         
-        Flip_btn = Button(mainwindow,
-                text="Reveal", 
-
-                
-
-                # styling
-                width=10,
-                height=3,
-                relief="flat",
-                bg=Theme["Button"]["BgColour"],
-                fg=Theme["Button"]["FontColour"],
-                font=(Theme["Button"]["Font"],
-                    Theme["Button"]["FontSize"]),
-                    
-                # command 
-                
-                command=self.draw_back,)
+        Flip_btn = ttk.Button(mainwindow,
+                text="Reveal",
+                padding=(3,5),
+                style="Body.TButton",
+                command=self.draw_back)
         
         #---------- Draw elements ----------------
-        front_field.pack(anchor="center")
+        front_field_frame.pack(fill=BOTH,expand=True)
+        front_field.pack(anchor=CENTER,fill=BOTH,expand=True)
         Flip_btn.pack(side="bottom")
 
 
@@ -841,57 +767,38 @@ class Review:
 
         #---------- Load elements ----------------
 
-        buttons = Frame(mainwindow, bg= "white")
+        buttons = ttk.Frame(mainwindow,
+                            style="Frame.TFrame")
 
-        styling = Theme["TitleLabel"]
+        back_field_frame = ttk.Frame(mainwindow, width=300, height=100)
+        back_field_frame.pack_propagate(False)
 
-        back_field = Message(mainwindow, 
+        back_field = ttk.Label(back_field_frame, 
               text=self.back,
+              style="Body.TLabel",
+              justify="center",
+              anchor="center",
+              wraplength=400)
+
+        pass_btn = ttk.Button(buttons, 
+                        text="Pass",
+                        style="Body.TButton",
+                        command=lambda: self.rate(1))
         
-              # stlying
-                                    
-              relief="flat",
-              bg=styling["BgColour"],
-              fg=styling["FontColour"],
-              font=(styling["Font"],    
-              styling["FontSize"]))
-
-        pass_btn = Button(buttons, 
-                          
-                        text="Pass", 
-
-                        # styling
-                        relief="flat",
-                        bg=Theme["Button"]["BgColour"],
-                        fg=Theme["Button"]["FontColour"],
-                        font=(Theme["Button"]["Font"],
-                        Theme["Button"]["FontSize"]),
-
-                        # command
-                          command=lambda: self.rate(1))
-        
-        fail_btn = Button(buttons, 
+        fail_btn = ttk.Button(buttons, 
                           
                         text="Fail", 
-
-                        # styling
-                        relief="flat",
-                        bg=Theme["Button"]["BgColour"],
-                        fg=Theme["Button"]["FontColour"],
-                        font=(Theme["Button"]["Font"],
-                        Theme["Button"]["FontSize"]),
-
-                        # command
-                          command=lambda: self.rate(0))
+                        style="Body.TButton",
+                        command=lambda: self.rate(0))
 
         # ------------------ TEMP ------------------
         card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
 
         Interval_ = card_schedule_data["Interval"]
         
-        current_interval = Label(mainwindow,
-                                 bg="white",
-                                 text=str(Interval_)+" Days")
+        current_interval = ttk.Label(mainwindow,
+                                 text=str(Interval_)+" Days",
+                                 style="Body.TLabel")
 
         
         # ------------------ TEMP ------------------
@@ -899,9 +806,10 @@ class Review:
                                  
         #---------- Draw elements ----------------
 
-        back_field.pack(anchor="center")
+        back_field_frame.pack(anchor="center", fill="both",expand=True)
 
-        
+        back_field.pack(anchor="center", fill="both",expand=True)
+
         buttons.pack(side="bottom",pady=10)
 
         pass_btn.pack(side=LEFT, padx=5)
@@ -911,27 +819,24 @@ class Review:
 
     def rate(self, rating):
 
+        # stop timer
+
         time_taken = time.time() - self.start
+
+        # get existing card schedule data
+
         all_schedule_data = Data.get_file_data("schedule")
         card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
 
-        # algorithm which adjusts schedule based on rating
+        # split existing card schedule data
 
-        #input interval, ease, repeats
-
-
-        # Interval is number of days until next review
         Interval = card_schedule_data["Interval"]
-        # Ease is the difficulty of the card
         Ease = card_schedule_data["Ease"]
-        # repeats is the consecutive passes
         Repeats = card_schedule_data["Repeats"]
-        # Lapses is the total amount of times the card has been failed
         Lapses = card_schedule_data["Lapses"]
-
         LeechState = card_schedule_data["Leech"]
-
         SuspendState = card_schedule_data["Suspended"]
+
 
         new_schedule_data = Scheduler.schedule(Interval,Ease,Repeats,Lapses,LeechState,SuspendState,rating)
         
@@ -940,34 +845,38 @@ class Review:
         Data.save_to_file("schedule",all_schedule_data)
         
 
+        # get old stats data
         all_stats = Data.get_file_data("stats")
 
+        # get data for new stats entry
         time_of_day = datetime.datetime.now().strftime("%H:%M:%S")
         todays_date = datetime.date.today()
         todays_date = str(todays_date)
         all_stats.setdefault(todays_date, {})
-        all_stats[todays_date].setdefault(str(self.card), []).append(
-        [time_taken, rating, time_of_day])
 
+        # build stats entry list    
+        all_stats[todays_date].setdefault(str(self.card), []).append(
+        [time_taken,
+        rating, 
+        time_of_day])
+
+        # write new stats data
         Data.save_to_file("stats",all_stats)
-        
+
+        # pointer to next card
         self.index += 1
+
+        # show the next card
+
         self.show_card()
 
     def finish(self):
 
         clear_main_frame()
 
-        styling = Theme["TitleLabel"]
-        Title = Label(mainwindow,
+        Title = ttk.Label(mainwindow,
                         text="Complete",
-
-                        # styling
-                        relief="flat",
-                        bg=styling["BgColour"],
-                        fg=styling["FontColour"],
-                        font=(styling["Font"],
-                        styling["FontSize"]))
+                        style="Body.TLabel")
         Title.pack()
         # draw "review complete" screen
 
@@ -976,9 +885,23 @@ class Review:
 
 def main(mainwindow):
     Data.load_files_startup()
-    decks_window_buttons(mainwindow)
+    # get preference
+    user_settings_data = Data.get_file_data("user_settings")
+    selected_theme = theme[user_settings_data["theme"]]
+
+
+    configure_styles(selected_theme)
+
+    # set mainwindow background
+    mainwindow.config(background=selected_theme["Background"])
+
+    
+    decks_window_buttons(mainwindow,selected_theme)
+    
     decks_list_elements()
+    
     heatmap()
+    
     mainwindow.mainloop()
 
 
