@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-import customtkinter as ctk
 from Theme import theme
 import Data
 # main window settings 
@@ -10,10 +9,6 @@ def draw_elements(User_Settings_frame):
     
     # Available fonts
     available_fonts = ["Arial"]
-
-    # get existing data
-
-    user_settings_data = Data.get_file_data("user_settings")
 
     
 
@@ -38,7 +33,7 @@ def draw_elements(User_Settings_frame):
         style="Body.TCombobox")
     font_type_entry.pack(anchor=W)
 
-    fields["font_type"] = font_type_entry
+    fields["Font"] = font_type_entry
 
 
 
@@ -62,7 +57,7 @@ def draw_elements(User_Settings_frame):
         textvariable=themes_entry_var)
     themes_entry.pack(anchor=W)
 
-    fields["theme"] = themes_entry_var
+    fields["Theme"] = themes_entry_var
 
 
 
@@ -85,7 +80,7 @@ def draw_elements(User_Settings_frame):
         )
     leechpoint_entry.pack(anchor=W)
 
-    fields["leechpoint"] = leechpoint_var
+    fields["Leech_Point"] = leechpoint_var
 
 
 
@@ -104,7 +99,7 @@ def draw_elements(User_Settings_frame):
         variable=suspend_leeches_var)
     suspend_leeches_entry.pack(anchor=W)
 
-    fields["suspend_leech"] = suspend_leeches_var
+    fields["Suspend_Leech"] = suspend_leeches_var
 
 
 
@@ -127,7 +122,7 @@ def draw_elements(User_Settings_frame):
         textvariable=learning_steps_var)
     learning_steps_entry.pack(anchor=W)
 
-    fields["learning_steps"] = learning_steps_var
+    fields["Learning_Steps"] = learning_steps_var
 
 
 
@@ -147,8 +142,7 @@ def draw_elements(User_Settings_frame):
         variable=hide_bar_in_review_var)
     hide_bar_in_review_entry.pack(anchor=W)
 
-    fields["no_review_buttons"] = hide_bar_in_review_var
-
+    fields["No_Review_Buttons"] = hide_bar_in_review_var
 
 
 
@@ -165,10 +159,10 @@ def draw_elements(User_Settings_frame):
     hide_interval_in_review_entry = ttk.Checkbutton(
         User_Settings_frame,
         style="Body.TCheckbutton",
-        variable=hide_bar_in_review_var)
+        variable=hide_interval_in_review_var)
     hide_interval_in_review_entry.pack(anchor=W)
 
-    fields["no_interval_in_review"] = hide_interval_in_review_var
+    fields["No_Interval_In_Review"] = hide_interval_in_review_var
 
 
     done_btn = ttk.Button(
@@ -180,13 +174,39 @@ def draw_elements(User_Settings_frame):
     done_btn.pack(anchor=W)
 
 
+    user_settings_data = Data.get_file_data("user_settings")
+
+    try:
+        font_type_entry.insert(0,user_settings_data["Font"])
+        themes_entry_var.set(user_settings_data["Theme"])
+        leechpoint_var.set(str(user_settings_data["Leech_point"]))
+        learning_steps_var.set(user_settings_data["Learning_Steps"])
+        hide_bar_in_review_var.set(user_settings_data["No_Review_Buttons"])
+        hide_interval_in_review_var.set(user_settings_data["No_Interval_In_Review"])
+    except:
+        font_type_entry.insert(0,"Arial")
+        themes_entry_var.set("Brilliant_White")
+        leechpoint_var.set("8")
+        learning_steps_var.set("1D, 3D")
+        hide_bar_in_review_var.set(0)
+        hide_interval_in_review_var.set(0)
+
+    learning_steps_entry.config(state="readonly")
+    themes_entry.config(state="readonly")
+    font_type_entry.config(state="readonly")
+
+
+
 
 def done(fields):
 
     def get_values(Entries):
         values = Entries.copy()
         for Entry in Entries.keys():
-            values[Entry] = Entries[Entry].get()          
+            if Entry == "Font":
+                values[Entry] = (Entries[Entry].get(), 10)
+            else:
+             values[Entry] = Entries[Entry].get()          
         return(values)
     
     values = get_values(fields)
@@ -202,17 +222,8 @@ def done(fields):
 def Draw_User_Settings_View(mainwindow, selected_theme):
 
     # window config
-    settings_root = ctk.CTkToplevel(mainwindow)
-    settings_root.title("Settings")
-    settings_root.config(background=selected_theme["Background"])
-    height_ = 500
-    width_ = 600
-    settings_root.geometry(str(height_) + "x" + str(width_))
-    User_Settings_frame = ctk.CTkScrollableFrame(settings_root, width=width_-50,height=height_-50, fg_color=selected_theme["Background"])
-    User_Settings_frame.pack(fill="both", expand=True, padx=10,pady=10)
+    settings_frame = Toplevel(mainwindow)
+    settings_frame.title("Settings")
+    settings_frame.geometry("200x600")
 
-
-    # focus window
-    settings_root.after(100, settings_root.focus)
-
-    draw_elements(User_Settings_frame)
+    draw_elements(settings_frame)

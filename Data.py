@@ -37,7 +37,7 @@ def get_keys_in_dict(filename):
     keys = []    
     for file in files[filename].keys():
         keys.append(file)
-    return keys
+    return
 
 
 def get_file_data(filename):

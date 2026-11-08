@@ -327,11 +327,13 @@ def Add_Deck_View():
 
     def draw_elements(Add_Deck_view):
         
-        Title = Button(Add_Deck_view,
+        Title = ttk.Button(Add_Deck_view,
                       text="Add Deck",
+                      style="Body.TButton",
                        command=lambda: pressed_add_deck(Deck_Entry, Title))
         
-        Deck_Entry = Entry(Add_Deck_view)
+        Deck_Entry = ttk.Entry(Add_Deck_view,
+                           style="Body.TEntry")
                       
         Title.place(x=0,y=20)
         Deck_Entry.place(x=0,y=0)
@@ -377,23 +379,26 @@ def heatmap():
 
     draw_days()
 
-def Help_View():
+def Help_View(selected_theme):
     
     # main window settings 
     Help_view_frame = Toplevel()
     Help_view_frame.title("Help")
     Help_view_frame.geometry("500x400")
-    def Draw_Elements():
+    def Draw_Elements(selected_theme):
 
-        stlyling = theme["Help"]
+    
 
         text = Text(Help_view_frame,
                      wrap="word",
                      width=50,
                      height=10,
                      # styling
-                     font=(stlyling["Body"]["Font"],stlyling["Body"]["FontSize"]))
-        
+                     background = selected_theme["WidgetBackground"],
+                     foreground= selected_theme["WidgetForeground"],
+                     font=selected_theme["Font"],
+                     insertbackground=selected_theme["Foreground"])
+
         text.pack()
 
         scroll = Scrollbar(Help_view_frame, command=text.yview)
@@ -406,15 +411,15 @@ def Help_View():
         text.tag_config("link",
 
                         # styling
-                        foreground=stlyling["Link"]["Foreground"],
-                        underline=stlyling["Link"]["Underline"],
-                        font=(stlyling["Link"]["Font"],stlyling["Link"]["FontSize"]))
+                        foreground=selected_theme["Selection"],
+                        underline=True,
+                        font=(selected_theme["Font"]))
         
         text.tag_config("heading",
 
                         # styling
-                        font=(stlyling["Heading"]["Font"],stlyling["Heading"]["FontSize"]))
-
+                        font=selected_theme["Font"])
+        
         sections = {
             "intro": ("Introduction", "S.R.S stands for Spaced Repitition System this software aims to help you forget less, how does it do that? It tries to predict when you are about to forget something and then reminds you at that estimated time."),
             "setup": ("Fundementals", "\nCreating Decks:\n\n""press Decks > add deck, then a window with an entry box should appear, Type what you would like to name your deck then press: Add Deck"
@@ -446,100 +451,11 @@ def Help_View():
 
         text.config(state="disabled")
 
-    Draw_Elements()    
+    Draw_Elements(selected_theme)    
 
 def Card_Types_View():
+    pass
 
-    def edit_card_type(c):
-
-        Edit_Card_Type_frame = Toplevel()
-        Edit_Card_Type_frame.title("Edit Card Type")
-        Edit_Card_Type_frame.geometry("500x400")
-
-
-    def add_card_type():
-
-        Add_Card_Type_frame = Toplevel()
-        Add_Card_Type_frame.title("Add Card Type")
-        Add_Card_Type_frame.geometry("500x400")
-
-        default_fields = {
-            "front":"text",
-            "back":"text",            
-        }
-
-        add_type_scroll_bar = Scrollbar(Add_Card_Type_frame)
-        add_type_scroll_bar.pack(side=RIGHT,fill=Y)
-
-        styling = theme["ListBox"]
-        Listbox_of_fields = Listbox(Add_Card_Type_frame,
-                                    height=20,
-                                    width=60,
-
-                                    # styling
-                                    bg=styling["BgColour"],
-                                    activestyle=styling["ActiveStyle"],
-                                    font=(styling["FontSize"],styling["Font"]),
-
-                                    # command
-                                    yscrollcommand=add_type_scroll_bar.set)
-                                    
-        i = 0
-
-        for field in default_fields.keys():
-            
-            Listbox_of_fields.insert(i,field)
-
-            i += 1 
-
-        Listbox_of_fields.pack()
-
-
-    Card_Types_frame = Toplevel()
-    Card_Types_frame.title("Card Types")
-    Card_Types_frame.geometry("500x400")
-
-    data = Data.get_file_data("card_types")
-
-
-    def draw_elements():
-        list_of_types_frame = Frame(Card_Types_frame)
-        list_of_types_frame.pack(anchor="center")
-
-        scroll_bar = Scrollbar(Card_Types_frame)
-        scroll_bar.pack(side=RIGHT,fill=Y)
-
-        styling = theme["ListBox"]
-                 
-        Listbox_of_types = Listbox(Card_Types_frame,
-                                    height=20,
-                                    width=60,
-
-                                    # styling
-                                    bg=styling["BgColour"],
-                                    activestyle=styling["ActiveStyle"],
-                                    font=(styling["Font"],styling["FontSize"]),
-
-                                    # command
-                                    yscrollcommand=scroll_bar.set)
-
-        i = 0
-        for card_type in data.keys():
-
-            Listbox_of_types.insert(i,card_type)
-            i += 1 
-
-
-        add_card_type_btn = Button(list_of_types_frame,
-                            text="Add Card Type",
-                            command= lambda: add_card_type())
-        
-        add_card_type_btn.pack(side="top")
-        Listbox_of_types.pack(anchor="center")
-
-        Listbox_of_types.bind("<<ListboxSelect>>", lambda event: edit_card_type(Listbox_of_types.get(Listbox_of_types.curselection()[0])))
-
-    draw_elements()
 
 
 # Draw menu bar at the top of the screen
@@ -568,7 +484,7 @@ def decks_window_buttons(mainwindow, selected_theme):
 
         # --- Help ---
         help_menu = make_menu("Help")
-        help_menu.add_command(label="Help", command=lambda: Help_View())
+        help_menu.add_command(label="Help", command=lambda: Help_View(selected_theme))
 
         # --- Decks ---
         decks_menu = make_menu("Decks")
@@ -679,6 +595,9 @@ class Review:
         self.queue = queue
         self.index = 0
         self.deck = deck
+        data = Data.get_file_data("user_settings")
+        self.HideButtons = data["No_Review_Buttons"]
+        self.HideInterval= data["No_Interval_In_Review"]
 
     
     def card(self):
@@ -737,17 +656,18 @@ class Review:
               justify="center",
               anchor="center",
               wraplength=400)
-        
-        Flip_btn = ttk.Button(mainwindow,
-                text="Reveal",
-                padding=(3,5),
-                style="Body.TButton",
-                command=self.draw_back)
+        if self.HideButtons == 0:
+            Flip_btn = ttk.Button(mainwindow,
+                    text="Reveal",
+                    padding=(3,5),
+                    style="Body.TButton",
+                    command=self.draw_back)
+            Flip_btn.pack(side="bottom")
         
         #---------- Draw elements ----------------
         front_field_frame.pack(fill=BOTH,expand=True)
         front_field.pack(anchor=CENTER,fill=BOTH,expand=True)
-        Flip_btn.pack(side="bottom")
+        
 
 
 
@@ -780,28 +700,32 @@ class Review:
               anchor="center",
               wraplength=400)
 
-        pass_btn = ttk.Button(buttons, 
-                        text="Pass",
-                        style="Body.TButton",
-                        command=lambda: self.rate(1))
-        
-        fail_btn = ttk.Button(buttons, 
-                          
-                        text="Fail", 
-                        style="Body.TButton",
-                        command=lambda: self.rate(0))
+        if self.HideButtons == 0:
 
-        # ------------------ TEMP ------------------
-        card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
+            pass_btn = ttk.Button(buttons, 
+                            text="Pass",
+                            style="Body.TButton",
+                            command=lambda: self.rate(1))
+            pass_btn.pack(side=LEFT, padx=5)
 
-        Interval_ = card_schedule_data["Interval"]
-        
-        current_interval = ttk.Label(mainwindow,
-                                 text=str(Interval_)+" Days",
-                                 style="Body.TLabel")
+            fail_btn = ttk.Button(buttons, 
+                            
+                            text="Fail", 
+                            style="Body.TButton",
+                            command=lambda: self.rate(0))
+            fail_btn.pack  (side=LEFT,pady=5)
 
-        
-        # ------------------ TEMP ------------------
+        if self.HideInterval == 0:
+            card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
+
+            Interval_ = card_schedule_data["Interval"]
+            
+            current_interval = ttk.Label(mainwindow,
+                                    text=str(Interval_)+" Days",
+                                    style="Body.TLabel")
+            current_interval.pack(side="bottom")
+
+
 
                                  
         #---------- Draw elements ----------------
@@ -813,9 +737,9 @@ class Review:
         buttons.pack(side="bottom",pady=10)
 
         pass_btn.pack(side=LEFT, padx=5)
-        fail_btn.pack  (side=LEFT,pady=5)
 
-        current_interval.pack(side="bottom")
+
+        
 
     def rate(self, rating):
 
@@ -887,7 +811,7 @@ def main(mainwindow):
     Data.load_files_startup()
     # get preference
     user_settings_data = Data.get_file_data("user_settings")
-    selected_theme = theme[user_settings_data["theme"]]
+    selected_theme = theme[user_settings_data["Theme"]]
 
 
     configure_styles(selected_theme)

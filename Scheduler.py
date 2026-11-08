@@ -1,6 +1,10 @@
 import datetime
+import Data
 
 def schedule(Interval, Ease, Repeats, Lapses, LeechState, SuspendState, rating):
+
+    settings = Data.get_file_data("user_settings")
+    Learning_Steps = settings["Learning_Steps"]
 
     if rating == 0:
         # Suspend the card if it has reached leech status
@@ -15,10 +19,11 @@ def schedule(Interval, Ease, Repeats, Lapses, LeechState, SuspendState, rating):
 
     elif rating == 1:
         # Learning steps
-        if Repeats == 0:
-            Interval = 1
-        elif Repeats == 1:
-            Interval = 3
+
+
+        # learning steps in the form [1,3,6] where numbers are days
+        if Interval < Learning_Steps[-1]:
+             Interval = Learning_Steps[Repeats]
         else:
             Interval = round(Interval * Ease)
 
@@ -33,11 +38,12 @@ def schedule(Interval, Ease, Repeats, Lapses, LeechState, SuspendState, rating):
 
     # Check whether the card has reached leech status
 
-    Leech_Point = 8
+    Leech_Point = settings["Leech_Point"]
     LeechState = Lapses >= Leech_Point
 
-    if LeechState:
-            SuspendState = True
+    if settings["Suspend_Leech"] == 1:
+        if LeechState:
+                SuspendState = True
 
     # Calculate the next review date
     New_Due = datetime.date.today() + datetime.timedelta(days=Interval)
