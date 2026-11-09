@@ -28,6 +28,35 @@ theme = {
         "Disabled": "#999999",
         "Selection": "#0078D4",
         "SelectionForeground": "#FFFFFF"
+
+        
+    "Nord": {
+        # Main window
+        "Background": "#2E3440",     
+        "Foreground": "#ECEFF4",       
+    
+        # Standard widget
+        "WidgetBackground": "#3B4252",
+        "WidgetForeground": "#E5E9F0",
+        "Border": "#434C5E",
+    
+        # Interactive widget
+        "Accent": "#88C0D0",           
+        "AccentForeground": "#2E3440",
+        "Hover": "#5E81AC",
+        "Pressed": "#81A1C1",
+    
+        # Font
+        "Font": ("Arial", 10),
+    
+        # Frame background
+        "FrameBackground": "#2E3440",
+    
+        # Misc
+        "Disabled": "#616E88",
+        "Selection": "#88C0D0",
+        "SelectionForeground": "#2E3440"
+    }
     }}
 
 
