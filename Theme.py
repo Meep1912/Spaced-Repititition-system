@@ -310,6 +310,14 @@ def configure_styles(selected_theme):
         arrowcolor=selected_theme["Foreground"],
         padding=5)
 
+    # TreeView
+    style.configure(
+        "Treeview.Heading",
+        background=selected_theme["Background"],
+        fieldbackground=selected_theme["WidgetBackground"],
+        font=selected_theme["Font"])
 
-
-
+    style.map(
+        "Treeview.Heading",
+        background=[("selected",selected_theme["Selection"])],
+        foreground=[("selected",selected_theme["Foreground"])])

@@ -1,6 +1,10 @@
 from tkinter import *
+from tkinter import ttk
 import Data
 import Add_Card_View
+
+
+
 
 # ------------- Main Window configiration -------------------
 
@@ -10,7 +14,7 @@ def open_card_view_menu():
 
     card_view = Toplevel()
     card_view.title("Card View")
-    card_view.geometry("600x450")
+    card_view.geometry("600x500")
     draw_elements()
 
 
@@ -34,17 +38,6 @@ def get_data():
 
     return combined
 
-def format(values):
-    string = ""
-    for word in values:
-        if len(word) > 12:
-            word = word[:12] + ". . ."
-
-        spaces = 22 - len(word)
-
-        string = string + (word+(spaces*" "))
-
-    return string
         
 def decode_filters(entry):
         filters = {
@@ -110,25 +103,40 @@ def draw_elements():
 
         def draw_filtered_cards(filters):
             
-            
-            listbox = Listbox(main_area,
-                                height=20,
-                                width=80,
-                                bg="white",
-                                activestyle="dotbox",
-                                yscrollcommand=scroll_bar.set)
 
-            listbox.delete(0, END)
+            trev = ttk.Treeview(main_area,
+                                   selectmode="browse",
+                                   yscrollcommand=scroll_bar.set,
+                                   style="Heading.Treeview")
+
+            trev["columns"] = ("0","1","2","3","4")
+
+            trev["show"] = "headings"
+            
+            trev.column("0", width=90)
+            trev.column("1", width=90)
+            trev.column("2", width=90)
+            trev.column("3", width=90)
+            trev.column("4", width=90)
+
+            trev.heading("0", text = "Deck")
+            trev.heading("1", text = "Front")
+            trev.heading("2", text = "Back")
+            trev.heading("3", text = "Due")
+            trev.heading("4", text = "Suspended")
+
+            trev.pack()
+
             i = 0
             data = get_data()
 
             cardIds = []
 
             def on_select(event):
-                selection = listbox.curselection() 
+                selection = trev.selection()
+                where = trev.index(selection)
                 if selection:                        
-                    index = selection[0]
-                    what_card_was_clicked = cardIds[index]
+                    what_card_was_clicked = cardIds[where]
                     
                     Add_Card_View.draw_elements_edit_card(what_card_was_clicked)
 
@@ -151,27 +159,21 @@ def draw_elements():
                     
                     cardIds.append(card_id)
 
-                    listbox.insert(i,format(values))
+                    trev.insert("","end",text="L1", values=values)
                     i += 1
                     
 
 
-            listbox.bind("<<ListboxSelect>>", on_select)
+            trev.bind("<<TreeviewSelect>>", on_select)
+            trev.place(x=100,y=100)
+            scroll_bar.configure(command=trev.yview)
 
-            listbox.place(x=100,y=100)
-
-        main_area = Frame(card_view)   
+        main_area = Frame(card_view,height=250,width=250)   
         Search_Bar = Entry(main_area,width=50)
         Submit_Btn = Button(main_area,width=10,command=lambda:draw_filtered_cards(decode_filters(Search_Bar.get())),text="Search" )
         scroll_bar = Scrollbar(main_area)
     
-        Deck_Lbl = Label(main_area,text="Deck").place(x=100,y=60)
-        Front_Lbl = Label(main_area,text="Front").place(x=180,y=60)
-        Back_Lbl = Label(main_area,text="Back").place(x=270,y=60)
-        Due_Lbl = Label(main_area, text="Due").place(x=360,y=60)
-        Suspend_lbl = Label(main_area, text="Suspend").place(x=450,y=60)
-
-        main_area.pack(side="right",fill="both",expand=True)
+        main_area.pack(side="right",fill="both",expand=TRUE)
 
         Search_Bar.place(x=100,y=25)
         Submit_Btn.place(x=350,y=25)

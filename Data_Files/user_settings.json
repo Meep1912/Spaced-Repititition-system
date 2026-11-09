@@ -1,12 +1,8 @@
 {
-    "Font": [
-        "Arial",
-        10
-    ],
-    "Theme": "Brilliant_White",
-    "Leech_Point": 8,
-    "Suspend_Leech": 1,
-    "Learning_Steps": "1D, 3D",
-    "No_Review_Buttons": 1,
-    "No_Interval_In_Review": 1
+    "Theme": "Org_Mode",
+    "Leech_Point": 0,
+    "Suspend_Leech": 0,
+    "Learning_Steps": "",
+    "No_Review_Buttons": 0,
+    "No_Interval_In_Review": 0
 }
