@@ -27,7 +27,7 @@ theme = {
         # Misc
         "Disabled": "#999999",
         "Selection": "#0078D4",
-        "SelectionForeground": "#FFFFFF"
+        "SelectionForeground": "#FFFFFF"},
 
         
     "Nord": {
@@ -55,9 +55,154 @@ theme = {
         # Misc
         "Disabled": "#616E88",
         "Selection": "#88C0D0",
-        "SelectionForeground": "#2E3440"
-    }
-    }}
+        "SelectionForeground": "#2E3440"},
+
+    "Dracula": {
+        "Background": "#282A36",
+        "Foreground": "#F8F8F2",
+    
+        "WidgetBackground": "#44475A",
+        "WidgetForeground": "#F8F8F2",
+        "Border": "#6272A4",
+    
+        "Accent": "#BD93F9",
+        "AccentForeground": "#282A36",
+        "Hover": "#50FA7B",
+        "Pressed": "#6272A4",
+    
+        "Font": ("Arial", 10),
+    
+        "FrameBackground": "#282A36",
+    
+        "Disabled": "#6272A4",
+        "Selection": "#44475A",
+        "SelectionForeground": "#F8F8F2"},
+    
+    "Absolute_Black": {
+        "Background": "#000000",
+        "Foreground": "#FFFFFF",
+    
+        "WidgetBackground": "#0A0A0A",
+        "WidgetForeground": "#FFFFFF",
+        "Border": "#1A1A1A",
+    
+        "Accent": "#00AEEF",
+        "AccentForeground": "#FFFFFF",
+        "Hover": "#1E1E1E",
+        "Pressed": "#333333",
+    
+        "Font": ("Arial", 10),
+    
+        "FrameBackground": "#000000",
+    
+        "Disabled": "#666666",
+        "Selection": "#00AEEF",
+        "SelectionForeground": "#FFFFFF"},
+    
+    "Wheatgrass": {
+        "Background": "#F8F7EE",
+        "Foreground": "#3C3C2E",
+    
+        "WidgetBackground": "#EFEBD5",
+        "WidgetForeground": "#3C3C2E",
+        "Border": "#B8C48A",
+    
+        "Accent": "#7FA33E",
+        "AccentForeground": "#FFFFFF",
+        "Hover": "#DDE8BF",
+        "Pressed": "#C7D79F",
+    
+        "Font": ("Arial", 10),
+    
+        "FrameBackground": "#F8F7EE",
+    
+        "Disabled": "#888866",
+        "Selection": "#7FA33E",
+        "SelectionForeground": "#FFFFFF"},
+    
+    "Winter": {
+        "Background": "#EAF3FA",
+        "Foreground": "#1F2D3D",
+    
+        "WidgetBackground": "#DCEAF5",
+        "WidgetForeground": "#1F2D3D",
+        "Border": "#AFC7D9",
+    
+        "Accent": "#5E81AC",
+        "AccentForeground": "#FFFFFF",
+        "Hover": "#C9DDEE",
+        "Pressed": "#B1CEE3",
+    
+        "Font": ("Arial", 10),
+    
+        "FrameBackground": "#EAF3FA",
+    
+        "Disabled": "#7A8794",
+        "Selection": "#5E81AC",
+        "SelectionForeground": "#FFFFFF"},
+    
+    "Org_Mode": {
+        "Background": "#FDF6E3",
+        "Foreground": "#657B83",
+    
+        "WidgetBackground": "#EEE8D5",
+        "WidgetForeground": "#586E75",
+        "Border": "#93A1A1",
+    
+        "Accent": "#268BD2",
+        "AccentForeground": "#FFFFFF",
+        "Hover": "#DCECF8",
+        "Pressed": "#BFD7EA",
+    
+        "Font": ("Arial", 10),
+    
+        "FrameBackground": "#FDF6E3",
+    
+        "Disabled": "#93A1A1",
+        "Selection": "#268BD2",
+        "SelectionForeground": "#FFFFFF"},
+    
+    "NotMuch_Dark": {
+        "Background": "#111111",
+        "Foreground": "#E8E8E8",
+    
+        "WidgetBackground": "#1B1B1B",
+        "WidgetForeground": "#E8E8E8",
+        "Border": "#333333",
+    
+        "Accent": "#729FCF",
+        "AccentForeground": "#FFFFFF",
+        "Hover": "#222222",
+        "Pressed": "#2C2C2C",
+    
+        "Font": ("Arial", 10),
+    
+        "FrameBackground": "#111111",
+    
+        "Disabled": "#666666",
+        "Selection": "#729FCF",
+        "SelectionForeground": "#FFFFFF"},
+    
+    "NotMuch_Light": {
+        "Background": "#FFFFFF",
+        "Foreground": "#222222",
+    
+        "WidgetBackground": "#F6F6F6",
+        "WidgetForeground": "#222222",
+        "Border": "#D8D8D8",
+    
+        "Accent": "#3465A4",
+        "AccentForeground": "#FFFFFF",
+        "Hover": "#EEF4FB",
+        "Pressed": "#D9E7F6",
+    
+        "Font": ("Arial", 10),
+    
+        "FrameBackground": "#FFFFFF",
+    
+        "Disabled": "#888888",
+        "Selection": "#3465A4",
+        "SelectionForeground": "#FFFFFF"}}
 
 
 def configure_styles(selected_theme):
