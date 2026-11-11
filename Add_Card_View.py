@@ -13,7 +13,6 @@ def draw_add_card_menu():
     add_card_menu = Toplevel()
     add_card_menu.title("Add Card")
     add_card_menu.geometry("600x500")
-    add_card_menu.config(bg="white")
 
     draw_elements()
 
@@ -174,11 +173,9 @@ def draw_elements():
 
     # ---TITLE ---
     
-    Title = Label(add_card_menu,
+    Title = ttk.Label(add_card_menu,
                     text="Add Card",
-                    bg="white",
-                    relief="flat",
-                    font=(12))
+                    style="Body.TLabel")
     
     # --- TYPE SELECTION ---
 
@@ -216,7 +213,8 @@ def draw_elements():
 
     Decks_Entry = ttk.Combobox(add_card_menu,
                                state="readonly",
-                               values=Deck_Selection)
+                               values=Deck_Selection,
+                               style="Body.TCombobox")
 
     style = ttk.Style()
     bg = style.lookup("Body.TEntry","fieldbackground")
@@ -328,7 +326,7 @@ def draw_elements_edit_card(card):
 
     Decks_Entry = ttk.Combobox(add_card_menu,
                                values=Deck_Selection,
-                               style="Body.TCombobox")
+                               style="Body.TEntry")
 
     Decks_Entry.insert(0,deck)
     Decks_Entry.config(state="readonly")

@@ -5,6 +5,10 @@ def schedule(Interval, Ease, Repeats, Lapses, LeechState, SuspendState, rating):
 
     settings = Data.get_file_data("user_settings")
     Learning_Steps = settings["Learning_Steps"]
+    Learning_Steps.split(", ")
+    Learning_Steps_List = []
+    for step in Learning_Steps.split(", "):
+         Learning_Steps_List.append(int(step))
 
     if rating == 0:
         # Suspend the card if it has reached leech status
@@ -22,8 +26,8 @@ def schedule(Interval, Ease, Repeats, Lapses, LeechState, SuspendState, rating):
 
 
         # learning steps in the form [1,3,6] where numbers are days
-        if Interval < Learning_Steps[-1]:
-             Interval = Learning_Steps[Repeats]
+        if Interval < Learning_Steps_List[-1]:
+             Interval = Learning_Steps_List[Repeats]
         else:
             Interval = round(Interval * Ease)
 

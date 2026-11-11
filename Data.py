@@ -59,10 +59,15 @@ def delete_in_file(file,key):
     save_whole_dict(file,data)
 
 def save_whole_dict(file,dictionary):
+    global files
 
     
     with open(filepaths[file], "w", encoding="utf-8") as f:
         json.dump(dictionary, f, indent=4)
+
+    
+    files[file] = dictionary
+    
     
 
 def save_to_file(file, data_to_write):

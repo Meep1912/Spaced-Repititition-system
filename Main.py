@@ -224,7 +224,7 @@ def draw_deck_options(deck):
 
     def confirmation(deck):
         cards = len(Data.get_file_data("decks")[deck])
-        result = messagebox.askokcancel("Deleting deck with "+str(cards)+" cards","are you you want to delete this deck:"+deck,icon="warning",font=font_)
+        result = messagebox.askokcancel("Deleting deck with "+str(cards)+" cards","are you you want to delete this deck:"+deck,icon="warning")
         if result:
             Delete_Deck(deck)
             decksbuttonpressed()
@@ -534,7 +534,7 @@ def User_Settings_View():
 
 
         # Learning steps
-        available_learning_steps = ["1D, 3D", "2D, 3D", "1D,2D,3D,4D", "1D,1D,2D", "1D,2D,3D"]
+        available_learning_steps = ["1, 3", "2, 3", "1,2,3,4", "1,1,2", "1,2,3"]
 
         learning_steps_lbl = ttk.Label(
             User_Settings_frame,
@@ -607,6 +607,9 @@ def User_Settings_View():
         themes_entry_var.set(user_settings_data["Theme"])
         leechpoint_var.set(str(user_settings_data["Leech_Point"]))
         learning_steps_var.set(user_settings_data["Learning_Steps"])
+
+
+        suspend_leeches_var.set(user_settings_data["Suspend_Leech"])
         hide_bar_in_review_var.set(user_settings_data["No_Review_Buttons"])
         hide_interval_in_review_var.set(user_settings_data["No_Interval_In_Review"])
 
@@ -624,11 +627,10 @@ def User_Settings_View():
             return(values)
         
         values = get_values(fields)
-        print("*"*20)
-        print(values)
         configure_styles(theme[values["Theme"]])
         mainwindow.config(bg=theme[values["Theme"]]["Background"])
         Data.save_whole_dict("user_settings",values)
+
         mainwindow.option_add("*Toplevel.background", theme[values["Theme"]]["Background"])
         decksbuttonpressed()
 
@@ -920,10 +922,6 @@ class Review:
         back_field_frame.pack(anchor="center", fill="both",expand=True)
 
         back_field.pack(anchor="center", fill="both",expand=True)
-
-        buttons.pack(side="bottom",pady=10)
-
-        pass_btn.pack(side=LEFT, padx=5)
 
 
         
