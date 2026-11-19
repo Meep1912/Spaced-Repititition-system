@@ -338,7 +338,6 @@ def Add_Deck_View():
     draw_elements(Add_Deck_view)
 
 def heatmap():
-    return 0
     def reveiws_in_day(date):
         all_stats = Data.get_file_data("stats")
         day_stats = all_stats.get(str(date),{})
@@ -993,19 +992,13 @@ def main(mainwindow):
     # get preference
     user_settings_data = Data.get_file_data("user_settings")
     selected_theme = theme[user_settings_data["Theme"]]
-
-
     configure_styles(selected_theme)
-
     # set mainwindow background
     mainwindow.config(background=selected_theme["Background"])
     # set all frames background
     mainwindow.option_add("*Toplevel.background", selected_theme["Background"])
-    
     decks_window_buttons(mainwindow,selected_theme)
-    
     decks_list_elements()
-    
     heatmap()
     
     mainwindow.mainloop()

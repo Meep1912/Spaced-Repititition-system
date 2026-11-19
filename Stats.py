@@ -5,7 +5,6 @@ import numpy as np
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg)
 import datetime
-import customtkinter as ctk
 
 
 
@@ -14,13 +13,36 @@ def Open_stat_view(mainwindow):
 
 
         # window config (Scrollable)
-        root = ctk.CTkToplevel(mainwindow)
+        root = Toplevel(mainwindow)
         root.title("Statistics")
         height_ = 500
         width_ = 600
         root.geometry(str(height_) + "x" + str(width_))
-        stat_view_scrollable = ctk.CTkScrollableFrame(root, width=width_-50,height=height_-50)
-        stat_view_scrollable.pack(fill="both", expand=True, padx=10,pady=10)
+
+        # a Canvas + Scrollbar scroll a plain Frame placed inside the canvas
+        scroll_canvas = Canvas(root, highlightthickness=0)
+        scrollbar = Scrollbar(root, orient="vertical", command=scroll_canvas.yview)
+        scroll_canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        scroll_canvas.pack(side="left", fill="both", expand=True)
+
+        # this keeps the same name, so the rest of your code works unchanged
+        stat_view_scrollable = Frame(scroll_canvas)
+        frame_id = scroll_canvas.create_window((0, 0), window=stat_view_scrollable, anchor="nw")
+
+        # update the scrollable area whenever the content changes size
+        stat_view_scrollable.bind(
+            "<Configure>",
+            lambda e: scroll_canvas.configure(scrollregion=scroll_canvas.bbox("all")))
+        # make the frame as wide as the window
+        scroll_canvas.bind(
+            "<Configure>",
+            lambda e: scroll_canvas.itemconfigure(frame_id, width=e.width))
+
+        # mouse wheel scrolling
+        def on_mousewheel(event):
+            scroll_canvas.yview_scroll(-1 if event.delta > 0 else 1, "units")
+        root.bind("<MouseWheel>", on_mousewheel)
 
         # focus window
         root.after(100, root.focus)
@@ -30,13 +52,9 @@ def Open_stat_view(mainwindow):
         schedule = Data.get_file_data("schedule")
 
 
-        month_timeframe_btn = 0
-        year_timeframe_btn = 0
-        alltime_timeframe_btn = 0
-
         # ------------- CHANGE THE TIME FRAME ----------------------
 
-        def timeframe_changed():
+        def timeframe_changed(value=None):
         
             values = {
                 0:"Month",
