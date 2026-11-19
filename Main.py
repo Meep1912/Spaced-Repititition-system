@@ -84,14 +84,10 @@ def what_cards_need_to_be_reviewed(deck):
 
         
             for card_id, card_schedule in cards_schedule_data.items():
-                
                 if count >= daily_review_card_limit:
                     break
-                
-                if card_schedule["Due"] == str(date.today()):
-
+                if card_schedule["Due"] <= str(date.today()):
                     if card_schedule["Suspended"] == False:
-
                         cards_to_review.append(card_id)
                     
             return cards_to_review

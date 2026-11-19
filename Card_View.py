@@ -38,7 +38,30 @@ def get_data():
 
     return combined
 
-        
+
+
+
+def convert(key,value):
+    bool_fields = {"Suspended, Leech"} # list of what fields should want booleen
+    int_fields = {"Interval", "Repeats", "Lapses"} # what fields should expect int
+    float_fields = {"Ease"} # what fields should expect float
+
+    if key in bool_fields:
+        v = value.lower()
+        if v in ("true","1","yes"): 
+            return True
+        if v in ("false","0","no"):
+            return False
+        else:
+            print(key,"must be True or False")
+    if key in int_fields: # if the value should be an int
+        return int(value)
+    if key in float_fields: # if the value should be a float
+        return float(value) 
+    return value # everything else stays a string    
+
+
+ 
 def decode_filters(entry):
         filters = {
             "Deck":None,
@@ -52,6 +75,8 @@ def decode_filters(entry):
             "Repeats": None,
             "Lapses":None}
 
+        
+
         # Entry should be in the form Deck:Deck1, Card_Type:Card1, Front:hello
         if entry == "":
             pass
@@ -60,7 +85,7 @@ def decode_filters(entry):
                 key, value = item.strip().split(":",1)
                 key = key.strip()
                 value = value.strip()
-                filters[key] = value
+                filters[key] = convert(key,value.strip())
     
         if filters["Interval"] is not None:
             filters["Interval"] = int(filters["Interval"])
