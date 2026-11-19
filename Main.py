@@ -449,7 +449,89 @@ def Help_View(selected_theme):
     Draw_Elements(selected_theme)    
 
 def Card_Types_View():
-    pass
+    card_type_menu = Toplevel()
+    card_type_menu.title("Card Types")
+    card_type_menu.geometry("200x500")
+
+    # title
+
+
+    def Fields_View(card_type):
+
+        def on_field_select(event):
+                selection = listbox_of_types.selection()
+                where = listbox_of_types.index(selection)
+                if selection:                        
+                    what_card_type_was_clicked = fields[where]
+                    what_was_the_media_type = types[where]
+
+        card_type_menu = Toplevel()
+        card_type_menu.title("Fields of "+card_type)
+        card_type_menu.geometry("200x500")
+
+        card_type_fields = Data.get_file_data("card_types")[card_type]
+
+        title = ttk.Label(card_type_menu,
+                      style="Heading.TLabel",
+                      text="Fields")
+        title.pack()
+
+        listbox_of_fields = ttk.Treeview(card_type_menu,
+                                        selectmode="browse",
+                                        style="Treeview.Heading")
+        
+        listbox_of_fields["columns"] = ("0")
+        listbox_of_fields["show"] = "headings"
+        listbox_of_fields.column("0", width=90)
+        listbox_of_fields.bind("<<TreeviewSelect>>", on_field_select)
+        listbox_of_fields.pack()
+
+
+        fields = []
+        types = []
+        print(card_type_fields)
+        for field in card_type_fields.keys():
+            fields.append(field)
+            types.append(card_type_fields[field])
+            listbox_of_fields.insert("","end", values=field)
+        
+
+        
+
+    # -------------- List box of card types ----------------------------
+
+    def on_card_type_select(event):
+        selection = listbox_of_types.selection()
+        where = listbox_of_types.index(selection)
+        if selection:                        
+            what_card_type_was_clicked = card_types_list[where]
+            Fields_View(what_card_type_was_clicked)
+            
+
+
+    title = ttk.Label(card_type_menu,
+                      style="Heading.TLabel",
+                      text="Card Types")
+
+    title.pack()
+
+    card_types = Data.get_file_data("card_types")
+    listbox_of_types = ttk.Treeview(card_type_menu,
+                                    selectmode="browse",
+                                    style="Treeview.Heading")
+    
+    listbox_of_types["columns"] = ("0")
+    listbox_of_types["show"] = "headings"
+    listbox_of_types.column("0", width=90)
+    listbox_of_types.bind("<<TreeviewSelect>>", on_card_type_select)
+    listbox_of_types.pack()
+
+
+                        
+    card_types_list = []
+    for type in card_types.keys():
+        card_types_list.append(type)
+        listbox_of_types.insert("","end", values=card_types_list)
 
 
 def User_Settings_View():

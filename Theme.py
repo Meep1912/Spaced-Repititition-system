@@ -197,6 +197,7 @@ theme = {
         "Pressed": "#D9E7F6",
     
         "Font": ("Arial", 10),
+
     
         "FrameBackground": "#FFFFFF",
     
@@ -223,6 +224,13 @@ def configure_styles(selected_theme):
         background=selected_theme["Background"],
         foreground=selected_theme["Foreground"],
         font=selected_theme["Font"])
+
+    style.configure(
+        "Heading.TLabel",
+        background=selected_theme["Background"],
+        foreground=selected_theme["Foreground"],
+        font=("Arial",20))
+
 
     # Buttons
     style.configure(
