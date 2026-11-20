@@ -9,17 +9,17 @@
             "Text"
         ],
         "Sentence": [
-            "Front",
+            "Back",
             "Text"
         ]
     },
-    "Hello": {
-        "Ans": [
+    "e": {
+        "Front": [
             "Front",
             "Text"
         ],
-        "Qus": [
-            "Front",
+        "Back": [
+            "Back",
             "Text"
         ]
     }
