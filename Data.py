@@ -18,6 +18,8 @@ def load_files_startup():
         with open(path, "r", encoding="utf-8") as f:
             files[name] = json.load(f)
 
+
+
 def write(name, data): # the only function which writes to file
     path = filepaths[name] # look up the files path
     # create a temporary file with a random name
@@ -35,6 +37,7 @@ def write(name, data): # the only function which writes to file
 
 def get_file_data(name):
     return files[name]
+
 
 def save_whole_dict(name, data):
     write(name, data)  # write to file

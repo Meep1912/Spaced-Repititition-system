@@ -173,30 +173,28 @@ def draw_elements():
 
     # ---TITLE ---
     
-    Title = ttk.Label(add_card_menu,
-                    text="Add Card",
-                    style="Body.TLabel")
+    Title = ttk.Label(add_card_menu,text="Add Card",style="Body.TLabel")
     
     # --- TYPE SELECTION ---
 
-    Type_Text = ttk.Label(add_card_menu,
-                        text="Type: ",
-                        style="Body.TLabel")
-                        
-    
+    Type_Text = ttk.Label(add_card_menu,text="Type: ",style="Body.TLabel")
     Card_Types_dict = Data.get_file_data("card_types")
-
     Card_Types = []
 
     for type in Card_Types_dict.keys():
-
         Card_Types.append(type)
-
 
     Type_Entry = ttk.Combobox(add_card_menu,
             state="readonly",
             values=Card_Types,
             style="Body.TCombobox")
+
+    # when the user selects a value, run draw_fields(selected_value)
+    def on_type_selected(event):
+        draw_fields(event.widget.get())
+
+    Type_Entry.bind("<<ComboboxSelected>>",on_type_selected)
+
 
     # --- DECK SELECTION ---         
     Deck_Text = ttk.Label(add_card_menu,
@@ -220,60 +218,53 @@ def draw_elements():
     bg = style.lookup("Body.TEntry","fieldbackground")
     fg = style.lookup("Body.TEntry","foreground")
 
-    # --- FRONT FIELD ENTRY BOX ---
-    Front_Field_Text = ttk.Label(add_card_menu,
-                                text="Front: ",
-                                style="Body.TLabel",
-                                )
-    
-    Front_Field_Entry = Text(add_card_menu,
-                              height=4,
-                              width=50,
-                              background=bg,
-                              foreground=fg,
-                              font=(12)
-                              )
+    # get card type data:
 
-    # --- BACK FIELD ENTRY BOX ---
-    Back_Field_Text = ttk.Label(add_card_menu,
-                                text="Back: ",
-                                style="Body.TLabel")
-    
-    Back_Field_Entry = Text(add_card_menu,
-                              height=4,
-                              width=50,
-                              background=bg,
-                              foreground=fg,
-                              font=(12)
-                              )
 
-    # --- DONE BUTTON ---
+    def draw_fields(card_type_chosen):
 
-    Entries = Front_Field_Entry,Back_Field_Entry,Type_Entry,Decks_Entry
-    Done = ttk.Button(add_card_menu,
-                  text="Add",
-                  style="Body.TLabel",
-                  command=lambda: done_button(Entries,Done))
-    
+        for widget in add_card_menu.winfo_children():
+            if widget.winfo_class() == "Combobox":
+                pass
+            else:
+                widget.destroy()
+        card_type_fields_data = Data.get_file_data("card_types")[card_type_chosen]
+
+        # instantianise labels and entries
+
+        lbls = []
+        entries = []
+
+        for field in card_type_fields_data.keys():
+            # ------------------ label-------------------
+            x_lbl = ttk.Label(add_card_menu, style="Body.TLabel", text=field)
+            lbls.append(x_lbl)
+            x_lbl.pack()
+
+            # ------------------entry-------------------
+            x_entry = Text(add_card_menu, height=4, width=50, background=bg, foreground=fg)
+            entries.append(x_entry)
+            x_entry.pack()
+
+
+        # --- DONE BUTTON ---
+        Done = ttk.Button(add_card_menu,
+            text="Add",style="Body.TLabel",command=lambda: done_button(entries,Done))
+        Done.place(x=25, y=410)
+
     # -- PLACING --
-    Title.place(x=10,y=10)
+    Title.pack()
 
-    Type_Text.place(x=15,y=50)
-    Type_Entry.place(x=70,y=55)
+    Type_Text.pack()
+    Type_Entry.pack()
 
-    Deck_Text.place(x=15,y=80)
-    Decks_Entry.place(x=70,y=85)
+    Deck_Text.pack()
+    Decks_Entry.pack()
 
-    Front_Field_Text.place(x=25,y=140)
-    Front_Field_Entry.place(x=25,y=170)
 
-    Back_Field_Text.place(x=25,y=270)
-    Back_Field_Entry.place(x=25,y=300)
-
-    Done.place(x=25,y=410)
 
 def draw_elements_edit_card(card):
-      
+    print("hi")
     draw_add_card_menu()
 
     global add_card_menu
@@ -332,58 +323,47 @@ def draw_elements_edit_card(card):
     Decks_Entry.config(state="readonly")
 
     style = ttk.Style()
-    bg = style.lookup("TEntry","fieldbackground")
-    fg = style.lookup("TEntry","foreground")
+    bg = style.lookup("Body.TEntry","fieldbackground")
+    fg = style.lookup("Body.TEntry","foreground")
+    print("fg: ",fg)
+    print("bg: ",bg)
 
-    # --- FRONT FIELD ENTRY BOX ---
-    Front_Field_Text = ttk.Label(add_card_menu,
-                                text="Front: ",
-                                style="Body.TLabel")
-    Front_Field_Entry = Text(add_card_menu,
-                              height=4,
-                              width=50,
-                              background=bg,
-                              foreground=fg
-                              )
-
-    Front_Field_Entry.insert("0.1",card_data["Front"])
-
-    # --- BACK FIELD ENTRY BOX ---
-    Back_Field_Text = ttk.Label(add_card_menu,
-                                text="Back: ",
-                                style="Body.TLabel")
-    Back_Field_Entry = Text(add_card_menu,
-                              height=4,
-                              width=50,
-                              background=bg,
-                              foreground=fg
-                              )
-
-    Back_Field_Entry.insert("0.1",card_data["Back"])
-
-    # --- DONE BUTTON ---
-
-    Entries = Front_Field_Entry,Back_Field_Entry,Type_Entry,Decks_Entry
-    Done = ttk.Button(add_card_menu,
-                  text="Add",
-                  style="Body.TButton",
-                  command=lambda: edit_done_button(Entries,Done,card)
-                  )
-    
     # -- PLACING --
     Title.place(x=10,y=10)
-
     Type_Text.place(x=15,y=50)
     Type_Entry.place(x=70,y=55)
-
     Deck_Text.place(x=15,y=80)
     Decks_Entry.place(x=70,y=85)
 
-    Front_Field_Text.place(x=25,y=140)
-    Front_Field_Entry.place(x=25,y=170)
 
-    Back_Field_Text.place(x=25,y=270)
-    Back_Field_Entry.place(x=25,y=300)
+    # get card type data:
+
+    card_type_fields_data = Data.get_file_data("card_types")[Type_Entry.get()]
+
+
+    # instantianise labels and entries
+
+    lbls = []
+    entries = []
+
+    for field in card_type_fields_data.keys():
+        #------------------ label-------------------
+        x_lbl = ttk.Label(add_card_menu,style="Body.TLabel",text=field)
+        lbls.append(x_lbl)
+        x_lbl.pack()
+
+        # ------------------entry-------------------
+        x_entry = Text(add_card_menu,height=4,width=50,background=bg,foreground=fg)
+        entries.append(x_entry)
+        x_entry.insert("0.1",card_data[field])
+        x_entry.pack()
+
+    # --- DONE BUTTON ---
+
+    Done = ttk.Button(add_card_menu,
+                  text="Add",
+                  style="Body.TButton",
+                  command=lambda: edit_done_button(entries,Done,card))
 
     Done.place(x=25,y=410)
 

@@ -12,6 +12,8 @@ def Card_Types_View(mainwindow):
     bg = style.lookup("Body.TEntry", "fieldbackground")
     fg = style.lookup("Body.TEntry", "foreground")
 
+    global front_entry, back_entry
+
     # ---------------- misc ----------------
 
     def cards_using(card_type):
@@ -50,14 +52,14 @@ def Card_Types_View(mainwindow):
         window.after(800, lambda: btn.config(text=original))
 
     def add_type():
-        name = new_type_entry.get().strip()
-        if not name:
+        new_type_string = new_type_entry.get().strip()
+        if new_type_string == "":
             flash(add_type_btn, "Empty", "Add")
             return
-        if name in Data.get_file_data("card_types"):
+        if new_type_string in Data.get_file_data("card_types"):
             flash(add_type_btn, "Exists", "Add")
             return
-        Data.save_to_file("card_types", {name: {}}) 
+        Data.save_to_file("card_types", {new_type_string: {}})
         new_type_entry.delete(0, "end")
         refresh_types()
 
@@ -67,7 +69,7 @@ def Card_Types_View(mainwindow):
      
     new_type_entry = ttk.Entry(add_row, style="Body.TEntry", width=14) # input for new name
     # button to confirm add
-    add_type_btn = ttk.Button(add_row, text="Add", style="Body.TButton",command= lambda: add_type)
+    add_type_btn = ttk.Button(add_row, text="Add", style="Body.TButton",command= lambda: add_type())
 
     add_row.pack(pady=(8, 2), fill="x")
     new_type_entry.pack(side="left", padx=2)
@@ -155,12 +157,11 @@ def Card_Types_View(mainwindow):
     panel = ttk.Frame(window, style="Frame.TFrame")
     panel.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
-    def show_fields(card_type):
+
+    def show_fields():
         clear_panel()
-        card_type_fields = Data.get_file_data("card_types")[card_type]
-
-        ttk.Label(panel, text="Fields of " + card_type, style="Heading.TLabel").pack()
-
+        card_type_fields = Data.get_file_data("card_types")[card_type_selected]
+        ttk.Label(panel, text="Fields of " + card_type_selected, style="Heading.TLabel").pack()
         fields_tree = ttk.Treeview(panel, selectmode="browse", style="Body.Treeview",
                                    columns=("field", "type"), show="headings", height=8)
         fields_tree.heading("field", text="field")
@@ -170,15 +171,25 @@ def Card_Types_View(mainwindow):
         fields_tree.pack(side="left", anchor="n", padx=5)
 
         boxes = ttk.Frame(panel, style="Frame.TFrame")
-        boxes.pack(side="left", anchor="n", padx=5)
 
-        ttk.Label(boxes, text="Front of Card", style="Body.TLabel").pack(anchor="w")
+        frnt_lbl = ttk.Label(boxes, text="Front of Card", style="Body.TLabel")
+
         front_entry = Text(boxes, height=4, width=20, background=bg, foreground=fg,
                            insertbackground=fg, font=("Segoe UI", 12))
-        front_entry.pack()
-        ttk.Label(boxes, text="Back of Card", style="Body.TLabel").pack(anchor="w")
+
+        bck_lbl = ttk.Label(boxes, text="Back of Card", style="Body.TLabel")
         back_entry = Text(boxes, height=4, width=20, background=bg, foreground=fg,
                           insertbackground=fg, font=("Segoe UI", 12))
+
+        save_button = ttk.Button(panel, text="Save", style="Body.TButton",
+                                 command=lambda: save_field_configuration(save_button))
+
+
+        boxes.pack(side="left", anchor="n")
+        save_button.pack()
+        frnt_lbl.pack(anchor="w")
+        front_entry.pack()
+        bck_lbl.pack(anchor="w")
         back_entry.pack()
 
         front_fields, back_fields = [], []
@@ -196,7 +207,8 @@ def Card_Types_View(mainwindow):
         new_name = ttk.Entry(field_row, style="Body.TEntry", width=12)
         new_type = ttk.Combobox(field_row, style="Body.TCombobox", width=8,
                                 values=["Text", "Image"], state="readonly")
-        add_btn = ttk.Button(field_row, text="Add field", style="Body.TButton")
+
+        add_btn = ttk.Button(field_row, text="Add field", style="Body.TButton", command= lambda: add_field())
         new_name.pack(side="left", padx=2)
         new_type.pack(side="left", padx=2)
         add_btn.pack(side="left", padx=2)
@@ -207,24 +219,58 @@ def Card_Types_View(mainwindow):
             if not name or not media_type:
                 flash(add_btn, "Empty fields", "Add field")
                 return
-            existing = Data.get_file_data("card_types")[card_type]
+            existing = Data.get_file_data("card_types")[card_type_selected]
             if name in existing:
                 flash(add_btn, "Name exists", "Add field")
                 return
             Data.save_to_file("card_types",
-                              {card_type: {**existing, name: ["Front", media_type]}})
+                              {card_type_selected: {**existing, name: ["Front", media_type]}})
             fields_tree.insert("", "end", values=(name, media_type))
             front_entry.insert("end", ("\n" if front_entry.get("1.0", "end-1c") else "") + name)
             new_name.delete(0, "end")
             flash(add_btn, "Added", "Add field")
 
-        add_btn.config(command=add_field)
+        # SAVE BUTTON
+        def save_field_configuration(btn):
+
+            fnt_entry_data = front_entry.get("1.0",END).split("\n")
+            bck_entry_data = back_entry.get("1.0",END).split("\n")
+
+            the_card_types_fields = Data.get_file_data("card_types")[card_type_selected]
+
+            new_card_type_field_layout = {}
+
+            for field in fnt_entry_data:
+                if field in the_card_types_fields:
+                    new_data = {field: ["Front", the_card_types_fields[field][1]]}
+                    new_card_type_field_layout.update(new_data)
+
+            for field in bck_entry_data:
+                if field in the_card_types_fields:
+                    new_data = {field: ["Back", the_card_types_fields[field][1]]}
+                    new_card_type_field_layout.update(new_data)
+
+
+            # replace card type in file with new_card_type_field_layout
+
+            Data.delete_in_file("card_types", card_type_selected)
+
+            # write cashe into file
+
+            Data.save_to_file("card_types", {card_type_selected: new_card_type_field_layout})
+
+
+        return front_entry, back_entry
+
 
     def on_type_select(event):
-        name = selected_type()
-        if name is not None:
-            show_fields(name)
+        global front_entry, back_entry, card_type_selected
+        card_type_selected = selected_type()
+        if card_type_selected is not None:
+            front_field, back_field = show_fields()
+
 
     types_tree.bind("<<TreeviewSelect>>", on_type_select)
     refresh_types()
+
 

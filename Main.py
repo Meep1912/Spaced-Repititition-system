@@ -182,10 +182,10 @@ def draw_deck_options(deck):
             def draw_elements(rename_deck_view):
                 
                 Done_Button = ttk.Button(rename_deck_view, style="Body.TButton",
-                        text="Delete Deck",
+                        text="Rename_Deck",
                         command=lambda: pressed_edit_deck_name(Deck_Entry,Done_Button))
 
-                Deck_Entry = Entry(rename_deck_view, style="Body.TEntry")
+                Deck_Entry = ttk.Entry(rename_deck_view, style="Body.TEntry")
 
                 Deck_Entry.insert(0,deck)         
                 Done_Button.place(x=0,y=20)
@@ -234,7 +234,7 @@ def draw_deck_options(deck):
                     style="Body.TButton",
                     command=lambda: confirmation(deck))
 
-    rename_deck_btn = Button(deck_options,
+    rename_deck_btn = ttk.Button(deck_options,
                     text="Rename Deck",
                     style="Body.TButton",
                     command=lambda: rename_deck(deck))
@@ -790,7 +790,7 @@ class Review:
               justify="center",
               anchor="center",
               wraplength=400)
-        if self.HideButtons == 0:
+        if self.HideButtons == 1:
             Flip_btn = ttk.Button(mainwindow,
                     text="Reveal",
                     padding=(3,5),
@@ -821,41 +821,31 @@ class Review:
 
         #---------- Load elements ----------------
 
-        buttons = ttk.Frame(mainwindow,
-                            style="Frame.TFrame")
-
+        buttons_frame = ttk.Frame(mainwindow, style="Frame.TFrame")
         back_field_frame = ttk.Frame(mainwindow, width=300, height=100)
-        back_field_frame.pack_propagate(False)
-
         back_field = ttk.Label(back_field_frame, 
-              text=self.back,
-              style="Body.TLabel",
-              justify="center",
-              anchor="center",
-              wraplength=400)
+              text=self.back, style="Body.TLabel", justify="center",
+              anchor="center", wraplength=400)
+        back_field_frame.pack_propagate(False)
+        back_field.pack(anchor="center")
 
-        if self.HideButtons == 0:
+        if self.HideButtons == 1:
 
-            pass_btn = ttk.Button(buttons, 
-                            text="Pass",
-                            style="Body.TButton",
-                            command=lambda: self.rate(1))
-            pass_btn.pack(side=LEFT, padx=5)
+            pass_btn = ttk.Button(buttons_frame,
+                text="Pass", style="Body.TButton", command=lambda: self.rate(1))
+            fail_btn = ttk.Button(buttons_frame,
+                text="Fail", style="Body.TButton", command=lambda: self.rate(0))
+            buttons_frame.pack(anchor="s",side="bottom")
+            pass_btn.pack(side="left", padx=5)
+            fail_btn.pack(side="left", pady=5)
 
-            fail_btn = ttk.Button(buttons, 
-                            
-                            text="Fail", 
-                            style="Body.TButton",
-                            command=lambda: self.rate(0))
-            fail_btn.pack  (side=LEFT,pady=5)
 
         if self.HideInterval == 0:
             card_schedule_data = Data.get_file_data("schedule")[str(self.card)]
+            interval_ = card_schedule_data["Interval"]
 
-            Interval_ = card_schedule_data["Interval"]
-            
             current_interval = ttk.Label(mainwindow,
-                                    text=str(Interval_)+" Days",
+                                    text=str(interval_)+" Days",
                                     style="Body.TLabel")
             current_interval.pack(side="bottom")
 
@@ -865,7 +855,6 @@ class Review:
         #---------- Draw elements ----------------
 
         back_field_frame.pack(anchor="center", fill="both",expand=True)
-
         back_field.pack(anchor="center", fill="both",expand=True)
 
 
