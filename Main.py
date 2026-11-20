@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-import customtkinter as ctk
 
 from datetime import date
 import datetime
@@ -12,6 +11,7 @@ import Add_Card_View
 import Data
 import Scheduler
 import Stats
+import Card_Types
 
 from Theme import theme
 from Theme import configure_styles
@@ -35,16 +35,8 @@ mainwindow.bind("<Escape>",lambda event: decksbuttonpressed())
 # ----------------------------- L O G I C ----------------------------------------
 # --------------------------------------------------------------------------------
 
-# taskbar buttons
 
-def filebuttonpressed():
-    pass
-def editbuttonpressed():
-    pass
-def veiwbuttonpressed():
-    pass
-def toolsbuttonpressed():
-    pass
+
 def decksbuttonpressed():
     clear_main_frame()
     decks_list_elements()
@@ -134,13 +126,14 @@ def clear_main_frame():
 
 # ----------------------------- Draw Sub-Menus ------------------------------------
 
+
 def draw_deck_options(deck):
 
     
     def rename_deck(deck):
         
             # main window settings 
-            rename_deck_view = Toplevel()
+            rename_deck_view = Toplevel(mainwindow)
             rename_deck_view.title("Rename Deck")
             rename_deck_view.geometry("200x50")
         
@@ -157,60 +150,43 @@ def draw_deck_options(deck):
                 else:
                     return newname 
         
-            def reset_done(Deck_Entry):
-                Deck_Entry.config(text="Rename Deck")
-            def pressed_edit_deck_name(Deck_Entry):
+            def reset_done(Deck_Entry,btn):
+                btn.config(text="Rename Deck")
+
+            def pressed_edit_deck_name(Deck_Entry, btn):
                 
                 New_Deck_Name = Deck_Entry.get()
         
                 if validation(New_Deck_Name,deck) == 0:
                     Deck_Entry.config(text="Empty field")
                     rename_deck_view.after(250,reset_done,Deck_Entry)
-                if validation(New_Deck_Name,deck) == 1:
-                    Deck_Entry.config(text="Unchanged")
+
+                elif validation(New_Deck_Name,deck) == 1:
+                    btn.config(text="Unchanged")
                     rename_deck_view.after(250,reset_done,Deck_Entry)
-                if validation(New_Deck_Name,deck) == 2:
-                    Deck_Entry.config(text="Deck already exists")
+
+                elif validation(New_Deck_Name,deck) == 2:
+                    btn.config(text="Deck already exists")
                     rename_deck_view.after(250,reset_done,Deck_Entry)
+
                 else:
                     decks = Data.get_file_data("decks")
                     decks[New_Deck_Name] = decks.pop(deck)
-                    Data.save_whole_dict("decks",deck)
-                    Deck_Entry.config(text="Added")
-                    rename_deck_view.after(250,reset_done,Deck_Entry)
+                    Data.save_whole_dict("decks",decks)
+                    btn.config(text="Added")
+                    rename_deck_view.after(250,reset_done,(Deck_Entry,btn))
 
                     decksbuttonpressed()
         
         
             def draw_elements(rename_deck_view):
                 
-                Done_Button = Button(rename_deck_view,
-                        
+                Done_Button = ttk.Button(rename_deck_view, style="Body.TButton",
                         text="Delete Deck",
+                        command=lambda: pressed_edit_deck_name(Deck_Entry,Done_Button))
 
-                        # stlying
-                        
-                        relief="flat",
-                        bg=theme["Button"]["BgColur"],
-                        fg=theme["Button"]["FontColour"],
-                        font=(theme["Button"]["Font"],
-                            theme["Button"]["FontSize"]),
+                Deck_Entry = Entry(rename_deck_view, style="Body.TEntry")
 
-                        # command
-
-                        command=lambda: pressed_edit_deck_name(Deck_Entry))
-
-                Deck_Entry = Entry(rename_deck_view,
-                        
-                        # stlying
-                        
-                        relief="flat",
-                        bg=theme["Entry"]["BgColour"],
-                        fg=theme["Entry"]["FontColour"],
-                        font=(theme["Entry"]["Font"],
-                            theme["Entry"]["FontSize"]))
-                
-                
                 Deck_Entry.insert(0,deck)         
                 Done_Button.place(x=0,y=20)
                 Deck_Entry.place(x=0,y=0)
@@ -223,6 +199,7 @@ def draw_deck_options(deck):
         result = messagebox.askokcancel("Deleting deck with "+str(cards)+" cards","are you you want to delete this deck:"+deck,icon="warning")
         if result:
             Delete_Deck(deck)
+            deck_options.destroy()
             decksbuttonpressed()
 
     def Delete_Deck(deck):
@@ -244,7 +221,6 @@ def draw_deck_options(deck):
         # save the new dictionarys which have the cards removed
         Data.save_whole_dict("card_data",card_data)
         Data.save_whole_dict("schedule",schedule)
-        
 
     # main window settings 
 
@@ -253,40 +229,17 @@ def draw_deck_options(deck):
     deck_options.geometry("600x400")
 
 
-    Delete_deck_btn = Button(deck_options,
-                    
+    Delete_deck_btn = ttk.Button(deck_options,
                     text="Delete Deck",
-
-                    # stlying
-                    
-                    relief="flat",
-                    bg=theme["Button"]["BgColour"],
-                    fg=theme["Button"]["FontColour"],
-                    font=(theme["Button"]["Font"],
-                          theme["Button"]["FontSize"]),
-
-                    # command
-
+                    style="Body.TButton",
                     command=lambda: confirmation(deck))
 
     rename_deck_btn = Button(deck_options,
-                    
-                    text="Delete Deck",
-
-                    # stlying
-                    
-                    relief="flat",
-                    bg=theme["Button"]["BgColour"],
-                    fg=theme["Button"]["FontColour"],
-                    font=(theme["Button"]["Font"],
-                          theme["Button"]["FontSize"]),
-
-                    # command
-
+                    text="Rename Deck",
+                    style="Body.TButton",
                     command=lambda: rename_deck(deck))
 
     Delete_deck_btn.pack()
-
     rename_deck_btn.pack()
 
 def Add_Deck_View():
@@ -447,188 +400,6 @@ def Help_View(selected_theme):
         text.config(state="disabled")
 
     Draw_Elements(selected_theme)    
-
-def Card_Types_View():
-
-
-    # title
-
-    # card types veiw 
-    # card fields veiw
-
-    def Fields_View(card_type):
-
-        field_menu = Toplevel()
-        field_menu.title("Add new field")
-        field_menu.geometry("200x300")
-
-# ignore
-
-        def on_field_select(event):
-            selection = listbox_of_fields.selection()
-            if not selection:
-                return
-            field, field_type = listbox_of_fields.item(selection[0], "values")
-
-
-        def save_button(Front_Entry, Back_Entry):
-            pass
-
-
-
-        def add_field_button(card_type):
-            #
-            def field_done(name_entry, type_box, btn, card_type):
-                def flash(text, ms=500):
-                    btn.config(text=text)
-                    field_menu.after(ms, lambda: btn.config(text="Add"))
-
-                name = name_entry.get().strip()
-                media_type = type_box.get().strip()
-
-                if not name or not media_type:
-                    flash("Empty Fields")
-                    return
-
-                existing = Data.get_file_data("card_types")[card_type]
-                if name in existing:
-                    flash("Field Name Exists")
-                    return
-
-                # save_to_file merges at the top level, so pass the whole card type's dict
-                Data.save_to_file("card_types", {card_type: {**existing, name: ["Front", media_type]}})
-                listbox_of_fields.insert("", "end", values=(name, media_type))
-                flash("Field Added", 400)
-
-            # name of new field
-            ttk.Label(field_menu,text="Name of new field",style="Body.TLabel").pack()
-            new_field_name = ttk.Entry(field_menu, style="Body.TEntry")
-
-            # combo-box (field type)
-            types = ["Text","Image"]
-            ttk.Label(field_menu,text="Field type",style="Body.TLabel").pack()
-            new_field_type = ttk.Combobox(field_menu, style="Body.TCombobox",values=types)
-            
-            # submit button
-            done_btn = ttk.Button(field_menu,text="Add",style="Body.TButton",
-                command= lambda: field_done(new_field_name,new_field_type, done_btn, card_type))
-
-            new_field_name.pack()
-            new_field_type.pack()
-            done_btn.pack()
-            #
-# ingore
-
-        # get card types
-        fields = Data.get_file_data("card_types")[card_type]
-        # set a title
-        title = ttk.Label(field_menu, style="Heading.TLabel", text="Fields")
-        
-
-
-        style = ttk.Style()
-        bg = style.lookup("Body.TEntry","fieldbackground")
-        fg = style.lookup("Body.TEntry","foreground")
-
-        
-        fields_frame = ttk.Frame(card_type_menu, 
-                                 style="Frame.TFrame",)
-        
-        Front_Field_lbl = ttk.Label(fields_frame, text="Front of Card", style="Body.TLabel")
-        Front_Field_Entry = Text(fields_frame, height=5, width=20, background=bg,
-                              foreground=fg, font=(12))
-        Back_Field_lbl = ttk.Label(fields_frame, text="Back of Card", style="Body.TLabel")
-        Back_Field_Entry = Text(fields_frame, height=5, width=20, background=bg,
-                              foreground=fg, font=(12))
-
-        add_field_btn = ttk.Button(card_type_menu,
-                                   text = "add field",
-                                   style="Body.TButton",
-                                   command= lambda: add_field_button(card_type))
-
-        save_btn = ttk.Button(card_type_menu,
-                                   text = "Save",
-                                   style="Body.TButton",
-                                   command= lambda: save_button(Front_Field_Entry, Back_Field_Entry))
-        # ------------- LIST BOX --------------------
-        listbox_of_fields = ttk.Treeview(card_type_menu,
-            selectmode="browse", style="Treeview.Heading")
-        listbox_of_fields["columns"] = ("0", "1")
-
-        listbox_of_fields["show"] = "headings"
-        listbox_of_fields.column("0", width=90)
-        listbox_of_fields.heading("0", text="field")
-        listbox_of_fields.column("1", width=90)
-        listbox_of_fields.heading("1", text="type")
-        listbox_of_fields.bind("<<TreeviewSelect>>", on_field_select)
-
-
-        front_string = ""
-        back_string = ""
-
-        for field in card_type_fields.keys():
-            
-            side = card_type_fields[field][0]
-            field_type = card_type_fields[field][1]
-
-            listbox_of_fields.insert("","end", values=(field,field_type))
-
-            if side == "Front":
-                front_string = (front_string + field + "\n")
-            if side == "Back":
-                back_string = (back_string + field + "\n")
-            if side == "Both":
-                front_string = (front_string + field + "\n")
-                back_string = (back_string + field + "\n")
-
-        
-        Front_Field_Entry.insert("1.0",front_string)
-        Back_Field_Entry.insert("1.0",back_string)
-
-        # Placing
-        title.pack()
-        listbox_of_fields.pack(side="left", anchor="n", padx=5)
-        add_field_btn.pack(side="top",anchor="s")
-        save_btn.pack(side="top",anchor="s")
-        fields_frame.pack(side="left", anchor="n", padx=5)
-        Front_Field_lbl.pack(anchor="w")
-        Front_Field_Entry.pack(anchor="e")
-        Back_Field_lbl.pack(anchor="w")
-        Back_Field_Entry.pack(anchor="e")
-        
-      
-    def card_types_():
-
-        def on_card_type_select(event):
-            selection = listbox_of_types.selection()
-            if not selection:
-                return
-            (card_type,) = listbox_of_types.item(selection[0], "values")
-            Fields_View(card_type)
-      
-        title = ttk.Label(card_type_menu,
-                        style="Heading.TLabel",
-                        text="Card Types")
-
-        title.pack()
-
-        card_types = Data.get_file_data("card_types")
-        listbox_of_types = ttk.Treeview(card_type_menu,
-                                        selectmode="browse",
-                                        style="Treeview.Heading")
-        
-        listbox_of_types["columns"] = ("0")
-        listbox_of_types["show"] = "headings"
-        listbox_of_types.column("0", width=90)
-        listbox_of_types.bind("<<TreeviewSelect>>", on_card_type_select)
-        listbox_of_types.pack()
-
-
-                            
-        card_types_list = []
-        for type in card_types.keys():
-            card_types_list.append(type)
-            listbox_of_types.insert("","end", values=card_types_list)
 
 
 def User_Settings_View():
@@ -842,7 +613,7 @@ def decks_window_buttons(mainwindow, selected_theme):
 
         # --- Edit ---
         edit_menu = make_menu("Edit")
-        edit_menu.add_command(label="Card Types", command=lambda: Card_Types_View())
+        edit_menu.add_command(label="Card Types", command=lambda: Card_Types.Card_Types_View(mainwindow))
         edit_menu.add_command(label="Preferences",command=lambda: User_Settings_View())
 
         # --- Help ---

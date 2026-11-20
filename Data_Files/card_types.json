@@ -1,5 +1,26 @@
 {
     "card 1": {
-        "Question":["Front","Text"],
-        "Answer":["Back","Text"]}
+        "Question": [
+            "Front",
+            "Text"
+        ],
+        "Answer": [
+            "Back",
+            "Text"
+        ],
+        "Sentence": [
+            "Front",
+            "Text"
+        ]
+    },
+    "Hello": {
+        "Ans": [
+            "Front",
+            "Text"
+        ],
+        "Qus": [
+            "Front",
+            "Text"
+        ]
+    }
 }
