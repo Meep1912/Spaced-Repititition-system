@@ -119,9 +119,7 @@ def get_card_data(current_card_being_reviewed):
 
 def clear_main_frame():
     for widget in mainwindow.winfo_children():
-        if widget.winfo_class() == "Menu":
-            pass
-        else:
+        if widget.winfo_class() != "Menu":
             widget.destroy()
 
 # ----------------------------- Draw Sub-Menus ------------------------------------
@@ -628,7 +626,7 @@ def decks_window_buttons(mainwindow, selected_theme):
         # --- Add ---
         add_menu = make_menu("Add")
         add_menu.add_command(label="Add Card",
-                            command=lambda: Add_Card_View.open_add_card_menu())
+                            command=lambda: Add_Card_View.draw_add_card_menu())
 
         # --- View ---
         view_menu = make_menu("View")
@@ -753,11 +751,27 @@ class Review:
                 self.queue = queue_of_cards
                 self.index = 0
 
-        self.front, self.back, self.type = get_card_data(self.card)
-        
+        card_data = Data.get_file_data("card_data")[str(self.card)]
+
+        self.type = card_data["Card_Type"]
+
+        self.front = []
+        self.back = []
+        card_fields = Data.get_file_data("card_types")[self.type]
+
+        # make two lists of (fields data) 
+        for field in card_fields.keys():
+            value = card_data.get(field, "") 
+            if card_fields[field][0] == "Front":
+                self.front.append(value)
+            elif card_fields[field][0] == "Back":
+                self.back.append(value)
+            elif card_fields[field][0] == "Both":
+                self.front.append(value)
+                self.back.append(value)
+
         self.draw_front()
         
-
     def draw_front(self):
         clear_main_frame()
 
@@ -784,12 +798,12 @@ class Review:
 
         front_field_frame = ttk.Frame(mainwindow, width = 300, height = 100)
         front_field_frame.pack_propagate(False)
-        front_field = ttk.Label(front_field_frame, 
-              text=self.front,
-              style="Body.TLabel",
-              justify="center",
-              anchor="center",
-              wraplength=400)
+
+        for field in self.front:
+            fld = ttk.Label(front_field_frame, 
+            text=field,style="Body.TLabel", justify="center",wraplength=400)
+            fld.pack(anchor="center",fill="both",expand=True)
+        
         if self.HideButtons == 1:
             Flip_btn = ttk.Button(mainwindow,
                     text="Reveal",
@@ -798,13 +812,9 @@ class Review:
                     command=self.draw_back)
             Flip_btn.pack(side="bottom")
         
-        #---------- Draw elements ----------------
         front_field_frame.pack(fill=BOTH,expand=True)
-        front_field.pack(anchor=CENTER,fill=BOTH,expand=True)
-        
 
-
-
+    
     def draw_back(self, event=None):
         clear_main_frame()
         # --- key binds ----
@@ -823,11 +833,12 @@ class Review:
 
         buttons_frame = ttk.Frame(mainwindow, style="Frame.TFrame")
         back_field_frame = ttk.Frame(mainwindow, width=300, height=100)
-        back_field = ttk.Label(back_field_frame, 
-              text=self.back, style="Body.TLabel", justify="center",
-              anchor="center", wraplength=400)
         back_field_frame.pack_propagate(False)
-        back_field.pack(anchor="center")
+
+        for field in self.back:
+            fld = ttk.Label(back_field_frame, 
+            text=field,style="Body.TLabel", justify="center",wraplength=400)
+            fld.pack(anchor="center",fill="both",expand=True)
 
         if self.HideButtons == 1:
 
@@ -855,9 +866,6 @@ class Review:
         #---------- Draw elements ----------------
 
         back_field_frame.pack(anchor="center", fill="both",expand=True)
-        back_field.pack(anchor="center", fill="both",expand=True)
-
-
         
 
     def rate(self, rating):
@@ -914,6 +922,11 @@ class Review:
         self.show_card()
 
     def finish(self):
+
+        mainwindow.unbind("<Key-1>")
+        mainwindow.unbind("<Key-0>")
+        mainwindow.unbind("<Return>")
+        mainwindow.unbind("<space>")
 
         clear_main_frame()
 

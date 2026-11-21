@@ -3,6 +3,9 @@ from tkinter import ttk
 import time
 import Data
 import Card_View
+from tkinter import filedialog
+import os
+import Media
 
 
 # ------------- Main Window configiration -------------------
@@ -14,185 +17,92 @@ def draw_add_card_menu():
     add_card_menu.title("Add Card")
     add_card_menu.geometry("600x500")
 
-    draw_elements()
+    def get_first_type():
+        for type in Data.get_file_data("card_types"):
+            return type
 
-# --------------------------------------------------------------------------------
-# ----------------------------- L O G I C ----------------------------------------
-# --------------------------------------------------------------------------------
+    draw_elements(get_first_type())
 
 
-def done_button(Entries,Done):
-    global add_card_menu
+## Menu Bar Add Card
 
-    def get_values(Entries):
-        values = []
-        for Entry in Entries:
+def flash(Done,text):
+        def reset_done(Done):
+            Done.config(text="Add")
+        Done.config(text=text)
+        add_card_menu.after(250,reset_done,Done)
+
+def done_button(fields, Done, Deck, Type):
+    card_type = Type.get()
+    deck = Deck.get()
+    if not card_type or not deck:
+        flash(Done, "Pick type + deck")
+        return
+
+    # validate everything first, write nothing yet
+    values = {}
+    for name, media_type, get_value, clear in fields:
+        value = get_value()
+        if not value:
+            flash(Done, "Empty Fields")
+            return
+        values[name] = value
+
+    # unique key
+    existing = Data.get_file_data("card_data")
+    key = str(time.time_ns())
+    while key in existing:
+        key = str(time.time_ns())
+
+    # build the card, importing media only now that validation has passed
+    card = {}
+    for name, media_type, get_value, clear in fields:
+        if media_type in ("Media", "Image"):
             try:
-                values.append(Entry.get("1.0","end-1c"))
-            except:
-                values.append(Entry.get())
-        return(values)
-
-    def generate_ID():
-        ID = time.time_ns()
-        return ID
-    
-    values = get_values(Entries)
-
-    def reset_done(Done):
-        Done.config(text="Add")
-
-    def card_added(Done):
-        Done.config(text="Card Added")
-        add_card_menu.after(500,reset_done,Done)
-
-    for value in values:
-        if not value.strip():
-            Done.config(text="Empty Fields")
-            add_card_menu.after(500,reset_done,Done)
-            return 0
+                card[name] = Media.import_media(values[name])   # returns the hashed filename
+            except OSError:
+                flash(Done, "Can't read file")
+                return
         else:
-            add_card_menu.after(500,card_added,Done)
+            card[name] = values[name]
+    card["Card_Type"] = card_type
 
+    schedule_entry = {"Due": "0", "Interval": 1, "Ease": 2.5, "Repeats": 0,
+                      "Lapses": 0, "Leech": False, "Suspended": False}
 
-    # break values up into variables
+    Data.append_decks_file(deck, key)
+    Data.save_to_file("card_data", {key: card})
+    Data.save_to_file("schedule", {key: schedule_entry})
 
-    front = values[0]
-    Back = values[1]
-    Deck = values[3]
-    Card_Type = values[2]
+    for name, media_type, get_value, clear in fields:
+        clear()
+    flash(Done, "Added")
 
-    key = str(generate_ID())
-
-    # compare
-    # generates upto 100 keys if there are colisions 
-    i = 0
-    while i < 100:
-        if key in Data.get_file_data("card_data"):
-            key = str(generate_ID())
-        else:
-            i = 100
-        i += 1
-    
-
-        
-    New_Card_Entry = {
-        key:{"Front":front,
-             "Back":Back,
-             "Card_Type":Card_Type}}
-
-    New_Schedule_Entry = {
-        key:{"Due":"0",
-             "Interval":1,
-             "Ease":2.5,
-             "Repeats":0,
-             "Lapses":0,
-             "Leech":False,
-             "Suspended":False}}
-
-    
-
-    # write to card_data file
-    Data.save_to_file("card_data",New_Card_Entry)
-    # add an blank entry to schedule with matching id
-    Data.save_to_file("schedule",New_Schedule_Entry)
-    # write to file
-    Data.append_decks_file(Deck,key)
-    print("hi!")
-
-    
-
-def edit_done_button(Entries,Done,card):
+def draw_elements(type_selected, deck=""):
     global add_card_menu
 
-    def get_values(Entries):
-        values = []
-        for Entry in Entries:
-            try:
-                values.append(Entry.get("1.0","end-1c"))
-            except:
-                values.append(Entry.get())
-        return(values)
-
-
-    
-    values = get_values(Entries)
-
-    def reset_done(Done):
-        Done.config(text="Add")
-
-    def card_added(Done):
-        Done.config(text="Card Added")
-        add_card_menu.after(500,reset_done,Done)
-
-    for value in values:
-        if not value.strip():
-            Done.config(text="Empty Fields")
-            add_card_menu.after(500,reset_done,Done)
-            return 0
-        else:
-            add_card_menu.after(500,card_added,Done)
-
-
-    # break values up into variables
-
-    front = values[0]
-    Back = values[1]
-    Deck = values[3]
-    Card_Type = values[2]
-
-    key = card
-
-    Replace_Card_Entry = {
-        key:{"Front":front,
-             "Back":Back,
-             "Card_Type":Card_Type}}
-    
-
-    # write to card_data file
-    Data.delete_in_file("card_data",card)
-    Data.save_to_file("card_data",Replace_Card_Entry)
-
-
-    Card_View.draw_elements()
-
-
-
-
-
-# --------------------------------------------------------------------------------
-# ----------------------------- D R A W I N G ------------------------------------
-# --------------------------------------------------------------------------------
-
-def open_add_card_menu():
-    draw_add_card_menu()
-
-def draw_elements():
-
-    global add_card_menu
-
+    def on_type_selected(event):
+        type_selected = event.widget.get()
+        for widget in add_card_menu.winfo_children():
+            widget.destroy()
+        draw_elements(type_selected)
     # ---TITLE ---
-    
     Title = ttk.Label(add_card_menu,text="Add Card",style="Body.TLabel")
-    
     # --- TYPE SELECTION ---
-
     Type_Text = ttk.Label(add_card_menu,text="Type: ",style="Body.TLabel")
     Card_Types_dict = Data.get_file_data("card_types")
     Card_Types = []
-
     for type in Card_Types_dict.keys():
         Card_Types.append(type)
-
     Type_Entry = ttk.Combobox(add_card_menu,
             state="readonly",
             values=Card_Types,
             style="Body.TCombobox")
 
-    # when the user selects a value, run draw_fields(selected_value)
-    def on_type_selected(event):
-        draw_fields(event.widget.get())
+    Type_Entry.set(type_selected)
 
+
+    # when the user selects a value, run draw_fields(selected_value)
     Type_Entry.bind("<<ComboboxSelected>>",on_type_selected)
 
 
@@ -214,6 +124,9 @@ def draw_elements():
                                values=Deck_Selection,
                                style="Body.TCombobox")
 
+    if deck:
+         Decks_Entry.set(deck) #
+
     style = ttk.Style()
     bg = style.lookup("Body.TEntry","fieldbackground")
     fg = style.lookup("Body.TEntry","foreground")
@@ -223,34 +136,56 @@ def draw_elements():
 
     def draw_fields(card_type_chosen):
 
-        for widget in add_card_menu.winfo_children():
-            if widget.winfo_class() == "Combobox":
-                pass
-            else:
-                widget.destroy()
         card_type_fields_data = Data.get_file_data("card_types")[card_type_chosen]
 
         # instantianise labels and entries
 
-        lbls = []
-        entries = []
+        fields = []   # one entry per field: (name, media_type, get_value, clear)
 
-        for field in card_type_fields_data.keys():
-            # ------------------ label-------------------
-            x_lbl = ttk.Label(add_card_menu, style="Body.TLabel", text=field)
-            lbls.append(x_lbl)
-            x_lbl.pack()
+        for field, (side, media_type) in card_type_fields_data.items():
+            ttk.Label(add_card_menu, style="Body.TLabel", text=field).pack()
 
-            # ------------------entry-------------------
-            x_entry = Text(add_card_menu, height=4, width=50, background=bg, foreground=fg)
-            entries.append(x_entry)
-            x_entry.pack()
+            if media_type == "Text":
+                box = Text(add_card_menu, height=4, width=50, background=bg, foreground=fg)
+                box.pack()
+                fields.append((
+                    field, media_type,
+                    lambda b=box: b.get("1.0", "end-1c").strip(),
+                    lambda b=box: b.delete("1.0", "end"),
+                ))
+
+            elif media_type in ("Image"):
+                chosen = {"path": ""}
+                status = ttk.Label(add_card_menu, style="Body.TLabel", text="No file chosen")
+
+                def choose(chosen=chosen, status=status):
+                    path = filedialog.askopenfilename(
+                        parent=add_card_menu,
+                        title="Choose a file",
+                        filetypes=[("Images", "*.png *.jpg *.jpeg *.gif")])
+                    if not path:                     # cancelled
+                        return
+                    chosen["path"] = path
+                    status.config(text=os.path.basename(path))
+
+                def clear_media(chosen=chosen, status=status):
+                    chosen["path"] = ""
+                    status.config(text="No file chosen")
+
+                ttk.Button(add_card_menu, text="Choose file", style="Body.TButton",
+                        command=choose).pack()
+                status.pack()
+                fields.append((field, media_type, lambda c=chosen: c["path"], clear_media))
+
+            else:
+                raise ValueError(f"Unknown field type {media_type!r} in {card_type_chosen}")
+
 
 
         # --- DONE BUTTON ---
         Done = ttk.Button(add_card_menu,
-            text="Add",style="Body.TLabel",command=lambda: done_button(entries,Done))
-        Done.place(x=25, y=410)
+            text="Add",style="Body.TButton",command=lambda: done_button(fields,Done,Decks_Entry,Type_Entry))
+        Done.pack(pady=10)
 
     # -- PLACING --
     Title.pack()
@@ -260,8 +195,13 @@ def draw_elements():
 
     Deck_Text.pack()
     Decks_Entry.pack()
+    draw_fields(type_selected)
 
 
+
+## Card View Edit Card
+
+## TODO EDIT CARD NEEDS UPDATING WITH TYPE STUFF
 
 def draw_elements_edit_card(card):
     print("hi")
@@ -365,5 +305,60 @@ def draw_elements_edit_card(card):
                   style="Body.TButton",
                   command=lambda: edit_done_button(entries,Done,card))
 
-    Done.place(x=25,y=410)
+    Done.pack(pady=10)
 
+def edit_done_button(Entries,Done,card):
+    global add_card_menu
+
+    def get_values(Entries):
+        values = []
+        for Entry in Entries:
+            try:
+                values.append(Entry.get("1.0","end-1c"))
+            except:
+                values.append(Entry.get())
+        return(values)
+
+
+    
+    values = get_values(Entries)
+
+    def reset_done(Done):
+        Done.config(text="Add")
+
+    def card_added(Done):
+        Done.config(text="Card Added")
+        add_card_menu.after(500,reset_done,Done)
+
+    for value in values:
+        if not value.strip():
+            Done.config(text="Empty Fields")
+            add_card_menu.after(500,reset_done,Done)
+            return 0
+        else:
+            add_card_menu.after(500,card_added,Done)
+
+
+    # break values up into variables
+
+    front = values[0]
+    Back = values[1]
+    Deck = values[3]
+    Card_Type = values[2]
+
+    key = card
+
+    Replace_Card_Entry = {
+        key:{"Front":front,
+             "Back":Back,
+             "Card_Type":Card_Type}}
+    
+
+    # write to card_data file
+    Data.delete_in_file("card_data",card)
+    Data.save_to_file("card_data",Replace_Card_Entry)
+
+
+    Card_View.draw_elements()
+
+## TODO EDIT CARD NEEDS UPDATING WITH TYPE STUFF

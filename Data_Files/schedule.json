@@ -1,10 +1,19 @@
 {
-    "1795175165177892800": {
-        "Due": "2026-11-22",
-        "Interval": 2,
-        "Ease": 2.3499999999999996,
-        "Repeats": 1,
-        "Lapses": 1,
+    "1795263874654948700": {
+        "Due": "2026-11-24",
+        "Interval": 3,
+        "Ease": 2.5999999999999996,
+        "Repeats": 2,
+        "Lapses": 0,
+        "Leech": false,
+        "Suspended": false
+    },
+    "1795267269574078100": {
+        "Due": "0",
+        "Interval": 1,
+        "Ease": 2.5,
+        "Repeats": 0,
+        "Lapses": 0,
         "Leech": false,
         "Suspended": false
     }
